@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#142338">
+<title>KOLCEM · Cronograma interactivo y ruta crítica</title>
+<style>
+:root{--ink:#142338;--muted:#627084;--pale:#f5f7fa;--line:#dfe6ee;--teal:#009b9c;--sky:#61b9db;--red:#eb646b;--lime:#c3df7b;--white:#fff;--row:47px;--head:88px;--sidebar:700px;--columns:52px 340px 76px 100px 100px 110px 108px 76px;--table-total:962px}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{font-family:Inter,"Segoe UI",Arial,sans-serif;background:#edf1f5;color:var(--ink);font-size:13px}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.35;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #63c0d2;outline-offset:2px}
+.app{height:100%;min-height:650px;display:flex;flex-direction:column;overflow:hidden}
+.top{flex-shrink:0;background:#142338;color:white;min-height:68px;display:flex;align-items:center;justify-content:space-between;padding:13px 24px;gap:14px}
+.brand{display:flex;align-items:center;gap:13px;min-width:0}.brand-logo{width:39px;height:39px;display:grid;place-items:center;background:var(--lime);border-radius:11px;color:#192b36;font-weight:950;font-size:16px;letter-spacing:-.9px;box-shadow:0 3px 8px #0002}.brand-name{font-size:19px;font-weight:800;letter-spacing:.04em;line-height:1.2}.brand-sub{font-size:11px;color:#abc2d2;letter-spacing:.09em;margin-top:4px}.top-right{color:#d1e1ed;font-size:11px;display:flex;align-items:center;gap:16px;flex-shrink:0}.top-right a{color:var(--lime);text-decoration:none}.top-tag{border:1px solid #486177;padding:7px 11px;border-radius:7px;white-space:nowrap}
+.intro{flex-shrink:0;display:flex;align-items:center;gap:20px;justify-content:space-between;background:#fff;border-bottom:1px solid var(--line);padding:13px 22px 11px}.intro-main{min-width:210px}.eyebrow{font-size:10px;font-weight:800;letter-spacing:.13em;color:#078c92}.intro h1{font-size:21px;letter-spacing:-.6px;margin:4px 0 2px;font-weight:800}.subtitle{font-size:11px;color:var(--muted);margin:0}.stats{display:flex;align-items:stretch;gap:8px}.stat{min-width:111px;padding:9px 13px;background:#f4f7fa;border-radius:10px;border:1px solid #e8eef4}.stat-val{font-size:21px;font-weight:850;line-height:1;letter-spacing:-.6px}.stat-label{margin-top:4px;color:#687789;font-size:10px;white-space:nowrap}.stat.critical .stat-val{color:#d44954}.stat.completed .stat-val{color:#008b92}
+.toolbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:13px;padding:10px 18px;background:#fff;border-bottom:1px solid var(--line);min-height:60px}.tools-left,.tools-right{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.tools-left{min-width:0}.btn{border:1px solid #d9e2eb;border-radius:8px;background:#fff;color:#263a4c;padding:8px 10px;font-weight:650;font-size:11px;white-space:nowrap;min-height:34px}.btn:hover{background:#f1f6f9;border-color:#a3bfce}.btn.on{background:#e8f8f7;color:#087d82;border-color:#83d1ce}.btn.primary{background:#142338;color:#fff;border-color:#142338}.btn.primary:hover{background:#263f5c}.btn.small{min-width:32px;font-size:16px;padding:5px 9px}.btn.critical-on{background:#fff0f0;color:#bd3544;border-color:#ffc5cb}.btn svg{vertical-align:middle;margin-right:4px}.control-search{border:1px solid #d9e2eb;border-radius:8px;padding:9px 11px;min-width:176px;width:210px;color:var(--ink);background:#f8fafc;font-size:11px;height:35px}.control-select{border:1px solid #d9e2eb;border-radius:8px;padding:8px 10px;color:var(--ink);background:#fff;font-size:11px;height:35px}.zoom-read{font-weight:750;color:#385266;min-width:39px;text-align:center;font-variant-numeric:tabular-nums}.vline{height:24px;border-left:1px solid #dfe6ed;margin:0 4px}
+.dropdown-wrap{position:relative}.dropdown{display:none;position:absolute;right:0;top:calc(100% + 7px);z-index:50;background:white;border:1px solid #d9e2eb;box-shadow:0 14px 35px #1e344c26;border-radius:12px;padding:13px;min-width:210px}.dropdown.visible{display:block}.dropdown-title{font-size:11px;color:var(--muted);font-weight:850;letter-spacing:.06em;margin-bottom:7px}.dropdown label{display:flex;gap:8px;align-items:center;padding:6px 0;color:#344458;font-size:12px;cursor:pointer}
+.board{flex:1;min-height:0;display:grid;grid-template-columns:var(--sidebar) 8px minmax(0,1fr);position:relative;background:#fff}.board.collapsed{grid-template-columns:0px 0px minmax(0,1fr)}.board.collapsed #tablePane,.board.collapsed #splitter{display:none}
+#splitter{width:8px;cursor:col-resize;background:#edf2f6;position:relative;z-index:14;border-left:1px solid #d9e2ea;border-right:1px solid #d9e2ea}#splitter:after{content:"";position:absolute;top:48%;left:2px;width:2px;height:30px;border-left:1px solid #90a7ba;border-right:1px solid #90a7ba}#splitter:hover{background:#b8d6df}
+#tablePane{overflow:auto;background:white;scrollbar-color:#afc1cf #f0f4f8;scrollbar-width:thin;overscroll-behavior:contain;min-width:0}#timeline{overflow:auto;min-width:0;position:relative;background:#fff;scrollbar-color:#aec5d1 #f2f5f7;overscroll-behavior:contain}
+#leftHeader{position:sticky;top:0;z-index:8;display:grid;grid-template-columns:var(--columns);width:var(--table-total);height:var(--head);background:#f1f5f9;border-bottom:2px solid #c7d3df}#leftHeader .hcell{position:relative;border-right:1px solid #d9e3ea;padding:0 8px 11px;display:flex;align-items:end;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.02em;color:#45566a;user-select:none;overflow:visible}#leftHeader .hcell:first-child{justify-content:center}#leftHeader .hcell.active-sort{color:#008c96}.resize-handle{position:absolute;top:0;right:-3px;height:100%;width:9px;z-index:9;cursor:col-resize}.resize-handle:hover:after{content:"";position:absolute;top:0;left:4px;width:2px;height:100%;background:#038da1}
+.trow{display:grid;grid-template-columns:var(--columns);width:var(--table-total);height:var(--row);border-bottom:1px solid #e9edf2;transition:background .12s}.trow:hover{background:#eaf6f6!important}.trow:nth-child(even){background:#fafcfe}.trow.summary{background:#eef4eb}.trow.project{background:#e6edf6;border-bottom-color:#ccdae6}.trow.milestone{background:#f5f7fa}.trow .cell{padding:6px 8px;border-right:1px solid #edf1f4;display:flex;align-items:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:11px;line-height:1.35}.trow .cell.name{white-space:normal;line-height:1.22;overflow:hidden;font-weight:570;color:#1e3146;cursor:pointer}.trow.summary .cell.name,.trow.project .cell.name{font-weight:840}.trow .cell.id{justify-content:center;color:#778799;font-variant-numeric:tabular-nums}.trow .cell.date,.trow .cell.dur,.trow .cell.slack{font-variant-numeric:tabular-nums}.trow .cell.slack.warn{color:#b26518;font-weight:850}.trow .cell.preds{font-size:10px;color:#55687b}.trow .cell.status span{font-size:10px;border-radius:15px;padding:4px 7px;font-weight:700}.pill-completed{background:#dff5ef;color:#0a776b}.pill-progress{background:#ddf2ff;color:#166b9f}.pill-pending{background:#f0f0f5;color:#727587}.tree{display:flex;gap:7px;align-items:center;min-width:0}.tree-text{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-clamp:2}.tree .tree-mark{flex-shrink:0;width:13px;text-align:center;font-weight:900;color:#318b99}.tree .tree-mark.is-project{color:#263d5b}.tree .tree-mark.is-milestone{color:#334f72}.caret{cursor:pointer;border:0;background:transparent;padding:0;color:#3d7388;width:15px;font-size:12px;flex-shrink:0}
+.timeline-head{position:sticky;top:0;z-index:7;background:#f1f5f9;height:var(--head);width:max-content;border-bottom:2px solid #c7d3df}.month-strip{height:39px;display:flex;border-bottom:1px solid #d7e0e9}.month{flex-shrink:0;border-right:1px solid #bacbd6;display:flex;align-items:center;justify-content:center;font-weight:850;font-size:11px;text-transform:capitalize;color:#283f56;letter-spacing:.02em}.day-strip{display:flex;height:47px;position:relative}.day{flex-shrink:0;border-right:1px solid #d8e1e9;display:flex;align-items:center;justify-content:center;font-size:10px;color:#68798a;font-variant-numeric:tabular-nums}.day.weekend{background:#e8edf2;color:#9cabb7}.day.month-start{color:#13576e;font-weight:900}.day.today{color:#08757c;font-weight:850;background:#dff3f0}
+#plotBody{position:relative;min-height:100%;cursor:grab;user-select:none;touch-action:pan-y;background:#fff}#plotBody.grabbing{cursor:grabbing}.plot-row{height:var(--row);border-bottom:1px solid #edf1f4;position:absolute;left:0;right:0}.plot-row:nth-child(even){background:#fafcfe}.plot-row.summary{background:#f5f8f2}.plot-row.project{background:#edf2f8}.plot-row.milestone{background:#fafafb}.weekend-shade{position:absolute;top:0;bottom:0;background:#f4f7f9;opacity:.55;pointer-events:none}.month-boundary{position:absolute;top:0;bottom:0;width:1px;background:#c5d1dc;pointer-events:none}.week-boundary{position:absolute;top:0;bottom:0;width:1px;background:#e4edf2;pointer-events:none}.today-line{position:absolute;top:0;bottom:0;border-left:2px dashed #069e92;pointer-events:none;z-index:3}.today-line>span{position:absolute;top:3px;left:5px;background:#e0f5ef;color:#057c73;font-weight:800;font-size:9px;border-radius:4px;padding:3px 5px;white-space:nowrap}.dep-svg{position:absolute;top:0;left:0;pointer-events:none;z-index:2;overflow:visible}.gbar{position:absolute;height:14px;border-radius:3px;background:var(--sky);border:1px solid #4dabc9;cursor:pointer;z-index:4;transition:box-shadow .15s,opacity .15s}.gbar:hover{box-shadow:0 0 0 4px #1f647c26;z-index:6}.gbar.completed{background:#62bddb;border-color:#359ac0;box-shadow:inset 0 3px 0 #247ea8}.gbar.progress{background:#77c6db;border-color:#299dbd}.gbar.pending{background:#76bdcf;border-color:#50a8bd}.gbar.critical{background:#f58d90;border-color:#dd535f;box-shadow:inset 0 3px 0 #dc4c5b}.gbar.critical:hover{box-shadow:0 0 0 4px #eb646b33}.gbar.summary{height:10px;border:2px solid #182f3b;background:var(--lime);border-radius:0;box-shadow:none}.gbar.project{height:10px;background:#24395d;border:0;border-radius:0}.gbar.mile{width:12px!important;height:12px;border-radius:1px;transform:rotate(45deg);background:#254a78;border:1px solid white;box-shadow:0 0 0 1px #254a78}.gbar.mile:hover{box-shadow:0 0 0 4px #2865a33b}.bar-label{position:absolute;z-index:3;white-space:nowrap;overflow:hidden;max-width:240px;text-overflow:ellipsis;font-size:10px;color:#344d61;top:0;height:var(--row);display:flex;align-items:center;pointer-events:none;font-weight:600}.bar-label.summary{font-weight:850;color:#22394e}.bar-label.project{font-weight:900;color:#20304d}.bar-label.milestone{font-weight:700;color:#2e536c}.faded .gbar:not(.critical),.faded .gbar.summary,.faded .gbar.project,.faded .gbar.mile{opacity:.87}.faded .bar-label:not(.crit-label){opacity:.94}
+.footer{flex-shrink:0;min-height:45px;padding:10px 20px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px}.legend{display:flex;align-items:center;gap:15px;flex-wrap:wrap}.legend-item{display:flex;align-items:center;gap:6px;font-size:10px;color:#627083}.legend-key{width:18px;height:8px;border-radius:2px;background:#65b7d3}.legend-key.red{background:#f58d90}.legend-key.sum{border:2px solid #182f3b;background:var(--lime);height:8px}.legend-key.mile{width:10px;height:10px;transform:rotate(45deg);background:#254a78}.note{font-size:10px;color:#687989;text-align:right}.hint{color:#327e8d;font-weight:750}
+.modal-backdrop{position:fixed;inset:0;background:#10243a8a;display:none;align-items:center;justify-content:center;z-index:100;padding:18px;backdrop-filter:blur(2px)}.modal-backdrop.show{display:flex}.dialog{background:white;border-radius:17px;box-shadow:0 25px 80px #13263f48;width:min(590px,100%);max-height:min(92vh,760px);overflow:auto;padding:24px}.dialog-head{display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:14px}.dialog h2{font-size:20px;margin:3px 0}.dialog .desc{font-size:11px;color:var(--muted);margin:0}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.form-field{display:flex;flex-direction:column;gap:5px;min-width:0}.form-field.wide{grid-column:span 2}.form-field label{font-size:11px;font-weight:800;color:#43566a}.form-field input,.form-field select,.form-field textarea{width:100%;padding:10px 11px;border:1px solid #cfdde8;border-radius:8px;color:#1c3246;background:white;font-size:12px}.form-field textarea{resize:vertical;min-height:72px;font:inherit}.help{font-size:10px;color:#7b8998}.dialog-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:20px;border-top:1px solid var(--line);padding-top:17px}.actions-right{display:flex;gap:9px}.info-box{padding:10px 12px;background:#f2f7f9;border-left:3px solid #50afba;color:#456274;border-radius:4px;font-size:11px;line-height:1.45;margin:13px 0}.toast{position:fixed;bottom:66px;right:22px;z-index:110;background:#162e43;color:white;padding:11px 15px;border-radius:9px;box-shadow:0 9px 28px #12263c40;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s;font-size:12px}.toast.visible{opacity:1;transform:translateY(0)}.mobile-tip{display:none}
+@media(max-width:1100px){.top-right .top-tag{display:none}.intro h1{font-size:18px}.stat{min-width:91px;padding:9px}.stat-val{font-size:18px}.control-search{width:160px;min-width:120px}.board{--sidebar:570px}}
+@media(max-width:790px){.top{padding:12px 14px}.top-right{display:none}.intro{padding:11px 14px;display:block}.stats{margin-top:12px;overflow-x:auto}.stat{flex:1;min-width:88px}.toolbar{padding:9px 10px;display:block}.tools-left{margin-bottom:8px}.tools-right{justify-content:flex-start}.board{--sidebar:330px}.footer{align-items:flex-start;flex-direction:column;gap:7px}.note{text-align:left}.mobile-tip{display:inline}.app{min-height:600px}.form-grid{gap:9px}}
+@media(max-height:650px){.intro{padding:7px 17px}.stats .stat{padding:5px 10px}.toolbar{padding:6px 12px;min-height:46px}.footer{padding:7px 16px;min-height:33px}}
+
+/* Revisión técnica y seguimiento */
+.type-pill{font-size:10px;font-weight:800;border-radius:5px;padding:4px 7px;white-space:nowrap}
+.type-pill.project{background:#e1e8f2;color:#263c62}.type-pill.summary{background:#e6f2d3;color:#415c1c}.type-pill.task{background:#e8f5fc;color:#206382}.type-pill.milestone{background:#ece5fc;color:#65409b}
+.cell.pct{font-variant-numeric:tabular-nums}.pctbox{min-width:76px;width:100%;display:flex;gap:5px;align-items:center}.pcttrack{flex:1;min-width:27px;height:7px;border-radius:8px;background:#e5eaf0;overflow:hidden}.pctfill{display:block;height:100%;background:#309ab9;border-radius:8px}.pcttext{font-weight:800;font-size:10px;min-width:26px;text-align:right}.pcttext.empty{color:#9aa5b2;font-weight:500}.trow.overdue{box-shadow:inset 3px 0 0 #e7a13e}
+.cutoff{display:flex;gap:6px;align-items:center;font-size:10px;font-weight:750;color:#576c7d;white-space:nowrap}.cutoff input{max-width:124px;height:34px;border:1px solid #d9e2eb;border-radius:8px;padding:6px 7px;color:#1e364c;background:white;font-size:11px}
+.gbar .progress-fill{position:absolute;inset:0 auto 0 0;background:#087ca0;opacity:.73;pointer-events:none;border-radius:2px}.gbar.critical .progress-fill{background:#bd2436}.gbar.mile .progress-fill{display:none}
+.gbar.forecast{border:1px dashed #ae6226;background:#f5c893;opacity:.85;height:6px;z-index:4;pointer-events:none}.forecast-legend{width:18px;height:0;border-top:3px dashed #ce8537}
+.relations{padding:11px;border-radius:8px;background:#f5f8fb;border:1px solid #e2e9f0;max-height:190px;overflow:auto;line-height:1.5}.rel-group{margin:5px 0;font-size:11px;color:#45566b}.rel-group strong{color:#213c52}.rel-link{cursor:pointer;border:1px solid #d8e4ec;background:#fff;border-radius:6px;padding:4px 6px;margin:3px;font-size:10px;color:#234d6b}.rel-link:hover{background:#e7f5f6}
+.analysis-dialog{background:#fff;border-radius:17px;box-shadow:0 25px 80px #13263f48;width:min(1050px,98vw);max-height:min(92vh,980px);display:flex;flex-direction:column;padding:22px 24px;overflow:hidden}.analysis-head{display:flex;justify-content:space-between;align-items:start;gap:14px}.analysis-head h2{font-size:22px;margin:5px 0 5px}.analysis-head p{color:#687b8a;font-size:12px;margin:0 0 11px}.analysis-tabs{display:flex;gap:7px;flex-wrap:wrap;padding:10px 0 13px;border-bottom:1px solid #dfe6ee}.analysis-content{overflow:auto;flex:1;padding:15px 2px}.analysis-foot{font-size:11px;color:#52697c;border-top:1px solid #dfe6ee;padding:13px 0 0;line-height:1.55}
+.an-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:14px}.an-metric{background:#f3f6f9;border-radius:10px;padding:14px;border:1px solid #e4ebf1}.an-metric .num{font-weight:900;font-size:23px;color:#243b53}.an-metric .small{font-size:11px;color:#607083;margin-top:5px}.analysis-content h3{font-size:14px;margin:22px 0 10px;color:#234052}.an-notice{background:#fff6e8;border:1px solid #f0d5ad;border-radius:10px;padding:12px 14px;color:#69512e;font-size:12px;line-height:1.5}.an-notice.neutral{background:#f0f8fa;border-color:#d5e9ee;color:#3d6471}.an-table{width:100%;border-collapse:collapse;font-size:11px}.an-table th{position:sticky;top:0;text-align:left;background:#ecf2f6;z-index:1;color:#34495c;padding:10px 9px;white-space:nowrap}.an-table td{padding:9px;border-bottom:1px solid #e7ebef;vertical-align:top}.an-table tr:hover td{background:#f5fafb}.an-table button{border:1px solid #d6e5ec;border-radius:5px;background:#fff;padding:4px 7px;cursor:pointer;font-size:10px;color:#245b73}.an-table button:hover{background:#e6f4f7}.an-group{display:grid;gap:10px}.an-flag{font-size:11px;font-weight:800;padding:3px 7px;border-radius:5px;background:#fff0e6;color:#945226;white-space:nowrap}.an-flag.green{background:#e0f5e9;color:#23724e}.an-flag.gray{background:#edf0f4;color:#607286}.an-info{font-size:11px;color:#687b8b;line-height:1.5}
+@media(max-width:790px){.cutoff{max-width:100%}.an-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.analysis-dialog{padding:13px}.analysis-head h2{font-size:17px}.an-table{min-width:750px}}
+/* Firebase - barra de conexión */
+.cloud-strip{background:#eff6fa;border-bottom:1px solid #d8e5ee;display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:9px 17px;font-size:12px;color:#345266;min-height:49px}
+.cloud-strip strong{font-weight:900;color:#193c50}.cloud-strip .btn{margin-left:1px}.cloud-user{font-size:11px;color:#556f84;margin-left:auto}.cloud-dot{height:10px;width:10px;border-radius:50%;display:inline-block;background:#d69b4f}.cloud-dot.online{background:#39ab75}.cloud-dot.offline{background:#e27868}.cloud-seed{color:#235675;background:#d7e9fc!important;border-color:#accdea!important}
+@media(max-width:790px){.cloud-user{margin-left:0;flex-basis:100%}.cloud-strip{gap:7px;padding:9px 12px}}
+</style>
+</head>
+<body>
+<div class="app">
+ <header class="top"><div class="brand"><div class="brand-logo">K.</div><div><div class="brand-name">KOLCEM <span style="color:#bcd1de;font-weight:400">/</span> CRONOGRAMA</div><div class="brand-sub">PROYECTO FINAL · INGENIERÍA INDUSTRIAL</div></div></div><div class="top-right"><span class="top-tag">Plan de trabajo · 2026</span><span>Basado en el cronograma original de Microsoft Project</span></div></header>
+ <section class="intro"><div class="intro-main"><div class="eyebrow">DIAGRAMA DE GANTT · VISTA INTERACTIVA</div><h1>Planificación y ruta crítica</h1><p class="subtitle">Actividades, dependencias, hitos y seguimiento del proyecto.</p></div><div class="stats"><div class="stat"><div class="stat-val" id="statTasks">44</div><div class="stat-label">Registros del plan</div></div><div class="stat completed"><div class="stat-val" id="statDone">12</div><div class="stat-label">Completados</div></div><div class="stat"><div class="stat-val" id="statProgress">10</div><div class="stat-label">En proceso</div></div><div class="stat critical"><div class="stat-val" id="statCritical">9</div><div class="stat-label" title="Identificadas en el PDF; no recalculadas mediante CPM">Tareas críticas (PDF)</div></div></div></section>
+ <div class="cloud-strip" aria-live="polite"><span class="cloud-dot" id="cloudDot"></span><strong>Sincronización:</strong><span id="cloudStatus">Preparando conexión con Firebase…</span><span id="cloudUser" class="cloud-user">Vista pública · solo lectura</span><button class="btn" id="cloudLogin" type="button">Iniciar sesión</button><button class="btn" id="cloudLogout" type="button" hidden>Cerrar sesión</button><button class="btn cloud-seed" id="cloudSeed" type="button" hidden>Subir las 44 filas por primera vez</button></div>
+ <div class="toolbar"><div class="tools-left"><input id="search" class="control-search" type="search" placeholder="⌕  Buscar actividad o ID…" aria-label="Buscar actividad"><select id="filter" class="control-select" aria-label="Filtrar por estado"><option value="all">Todos los estados</option><option value="Completado">Completado</option><option value="En proceso">En proceso</option><option value="Pendiente">Pendiente</option></select><select id="typeFilter" class="control-select" aria-label="Filtrar por tipo de actividad"><option value="all">Todos los tipos</option><option value="project">Proyecto</option><option value="summary">Etapa</option><option value="task">Actividad</option><option value="milestone">Hito</option></select><button class="btn critical-on" id="criticalBtn" title="Resalta las tareas señaladas en rojo en el PDF original. No recalcula automáticamente la ruta crítica.">◆ Tareas críticas: ON</button><button class="btn on" id="depBtn" title="Mostrar u ocultar las relaciones de precedencia">↗ Dependencias</button><div class="dropdown-wrap"><button class="btn" id="fieldsBtn" aria-expanded="false">☷ Columnas</button><div id="fieldsMenu" class="dropdown"><div class="dropdown-title">MOSTRAR / OCULTAR COLUMNAS</div><div id="fieldChecks"></div></div></div></div><div class="tools-right"><label class="cutoff">Fecha de corte <input id="cutoffDate" type="date" value="2026-10-19" aria-label="Fecha de corte del seguimiento"></label><button class="btn" id="analysisBtn">▤ Análisis y vínculos</button><button class="btn" id="panelBtn" title="Ocultar o mostrar las columnas de actividades">▤ Ocultar tabla</button><button class="btn" id="startBtn">⤺ Inicio</button><button class="btn" id="todayBtn">◎ Hoy</button><span class="vline"></span><button class="btn small" id="zoomOut" title="Reducir escala" aria-label="Alejar">−</button><span id="zoomRead" class="zoom-read">100%</span><button class="btn small" id="zoomIn" title="Ampliar escala" aria-label="Acercar">+</button><span class="vline"></span><div class="dropdown-wrap"><button class="btn primary" id="exportBtn">↓ Exportar ▾</button><div id="exportMenu" class="dropdown"><div class="dropdown-title">GUARDAR Y COMPARTIR</div><button class="btn" style="display:block;width:100%;text-align:left;margin:4px 0" id="exportHtml">↧ HTML actualizado (index.html)</button><button class="btn" style="display:block;width:100%;text-align:left;margin:4px 0" id="exportJson">↧ Copia editable (JSON)</button><button class="btn" style="display:block;width:100%;text-align:left;margin:4px 0" id="importBtn">↥ Importar JSON…</button><button class="btn" style="display:block;width:100%;text-align:left;margin:4px 0;color:#bd4856" id="resetBtn">↶ Restaurar cronograma PDF</button></div></div><button class="btn" id="addBtn" title="Crear una nueva actividad">＋ Tarea</button></div></div>
+ <section class="board" id="board" aria-label="Diagrama de Gantt interactivo"><div id="tablePane" aria-label="Tabla desplazable de actividades"><div id="leftHeader"></div><div id="leftRows"></div></div><div id="splitter" aria-label="Arrastrar para ajustar el ancho del panel de actividades"></div><div id="timeline" aria-label="Cronograma temporal desplazable"><div id="timelineHead" class="timeline-head"><div id="months" class="month-strip"></div><div id="days" class="day-strip"></div></div><div id="plotBody"></div></div></section>
+ <footer class="footer"><div class="legend"><span class="legend-item"><span class="legend-key sum"></span> Etapa / resumen</span><span class="legend-item"><span class="legend-key"></span> Actividad</span><span class="legend-item"><span class="legend-key red"></span> Barra roja en PDF (referencia, no CPM)</span><span class="legend-item"><span class="legend-key mile"></span> Hito</span></div><div class="note">Arrastra encabezados para ampliar columnas · Haz clic en «Análisis y vínculos» para revisar predecesoras, sucesoras y riesgos · <span class="hint">Clic en una actividad para editarla</span> · <span class="mobile-tip">Desliza horizontalmente · </span>Los cambios se guardan en Firebase al confirmar «Guardado en la nube»</div></footer>
+</div>
+
+<div id="analysisOverlay" class="modal-backdrop" role="presentation"><div class="analysis-dialog" role="dialog" aria-modal="true" aria-labelledby="analysisTitle"><div class="analysis-head"><div><div class="eyebrow">CONTROL DEL CRONOGRAMA · INFORME DE SEGUIMIENTO</div><h2 id="analysisTitle">Análisis de ruta, hitos y dependencias</h2><p>Revisión interactiva a la fecha de corte seleccionada. La información proviene del cronograma original y los cambios registrados por el equipo.</p></div><button class="btn" id="closeAnalysis">✕ Cerrar</button></div>
+<div class="analysis-tabs"><button id="tabSummary" class="btn on" data-tab="summary">Resumen y riesgos</button><button id="tabLinks" class="btn" data-tab="links">Todas las dependencias</button><button id="tabMilestones" class="btn" data-tab="milestones">Hitos y entregables</button></div>
+<div id="analysisContent" class="analysis-content"></div>
+<div class="analysis-foot"><strong>Aclaración técnica:</strong> la ruta marcada en rojo y las holguras son las del PDF. No se realiza un cálculo CPM nuevo porque el archivo PDF no contiene el calendario completo, las restricciones ni los posibles desfases de MS Project. La edición compartida de los datos se realiza mediante Firebase al iniciar sesión como usuario autorizado. El sitio de GitHub Pages proporciona la interfaz.</div>
+</div></div>
+<div id="modal" class="modal-backdrop" role="presentation"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog-head"><div><div class="eyebrow">EDITOR DE ACTIVIDADES</div><h2 id="modalTitle">Editar tarea</h2><p class="desc">Solo los usuarios autorizados pueden editar. Los cambios se guardan en Firestore.</p></div><button class="btn" id="closeModal" aria-label="Cerrar">✕</button></div><form id="editForm"><div class="form-grid"><div class="form-field wide"><label for="fName">Nombre de la actividad</label><textarea id="fName" required maxlength="600"></textarea></div><div class="form-field"><label for="fStart">Fecha de comienzo</label><input id="fStart" required type="date"></div><div class="form-field"><label for="fEnd">Fecha de fin</label><input id="fEnd" required type="date"></div><div class="form-field"><label for="fStatus">Estado de actividad</label><select id="fStatus"><option>Completado</option><option>En proceso</option><option>Pendiente</option></select></div><div class="form-field"><label for="fType">Tipo de actividad</label><select id="fType"><option value="task">Actividad</option><option value="summary">Etapa</option><option value="milestone">Hito</option><option value="project">Proyecto</option></select></div><div class="form-field"><label for="fPreds">Predecesoras</label><input id="fPreds" type="text" placeholder="Ej.: 25CC;26;27FF"><div class="help">FC = Fin a Comienzo (por defecto) · CC = Comienzo a Comienzo · FF = Fin a Fin · CF = Comienzo a Fin</div></div><div class="form-field"><label for="fSlack">Demora permisible (días)</label><input id="fSlack" type="number" min="0" max="999"></div><div class="form-field"><label for="fProgress">Avance real (%)</label><input id="fProgress" type="number" min="0" max="100" step="1" placeholder="Sin registrar"><div class="help">Dejar vacío si el porcentaje real no ha sido confirmado.</div></div>
+<div class="form-field"><label for="fForecast">Fin previsto actualizado</label><input id="fForecast" type="date"><div class="help">Opcional: pronóstico que comunique el equipo.</div></div>
+<div class="form-field"><label for="fActualStart">Inicio real</label><input id="fActualStart" type="date"></div>
+<div class="form-field"><label for="fActualEnd">Fin real</label><input id="fActualEnd" type="date"></div>
+<div class="form-field wide"><label for="fComment">Observaciones y justificación del seguimiento</label><textarea id="fComment" placeholder="Ej.: actividad pendiente de validar con la empresa; ajuste de capacidad..."></textarea></div>
+<div class="form-field wide"><label>Predecesoras y sucesoras interpretadas</label><div id="relationPreview" class="relations"></div></div>
+<div class="form-field wide"><label style="display:flex;align-items:center;gap:9px;cursor:pointer"><input type="checkbox" id="fCritical" style="width:16px;height:16px"> Destacar como actividad crítica (barra roja)</label></div></div><div class="info-box">Las barras rojas y las holguras provienen del PDF y <strong>no constituyen un recálculo automático CPM</strong>. El avance real, las fechas reales y la proyección deben registrarse con evidencia del equipo. Cambiar predecesoras no desplaza automáticamente las tareas sucesoras.</div><div class="dialog-actions"><button class="btn" id="deleteBtn" type="button" style="color:#b8424d">Eliminar actividad</button><div class="actions-right"><button class="btn" id="cancelBtn" type="button">Cancelar</button><button class="btn primary" type="submit">Guardar cambios</button></div></div></form></div></div>
+<input id="importFile" type="file" accept=".json,application/json" hidden>
+<div id="loginOverlay" class="modal-backdrop" role="presentation"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="loginTitle" style="max-width:460px"><div class="dialog-head"><div><div class="eyebrow">FIREBASE AUTHENTICATION</div><h2 id="loginTitle">Acceso al cronograma compartido</h2><p class="desc">Solo cuentas autorizadas por el equipo pueden ver y guardar datos compartidos.</p></div><button class="btn" id="closeLogin" type="button">✕</button></div><form id="cloudLoginForm"><div class="form-grid"><div class="form-field wide"><label for="cloudEmail">Correo electrónico</label><input id="cloudEmail" type="email" autocomplete="username" required></div><div class="form-field wide"><label for="cloudPassword">Contraseña</label><input id="cloudPassword" type="password" autocomplete="current-password" required></div></div><p class="info-box">La cuenta se crea desde Firebase Console → Authentication → Usuarios. No compartas tu contraseña con nadie.</p><p id="cloudLoginError" style="color:#b8424d;font-size:12px" role="alert"></p><div class="dialog-actions"><span class="help">Se requiere conexión a internet.</span><button class="btn primary" id="cloudSignIn" type="submit">Entrar</button></div></form></div></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script id="dataset" type="application/json">[
+  {
+    "id": 1,
+    "name": "Proyecto KOLCEM: Análisis de la brecha entre capacidad productiva, demanda atendida y restricciones operativas para el diseño de estrategias de mejora en una empresa cementera",
+    "duration": 115,
+    "start": "2026-08-05",
+    "end": "2026-11-27",
+    "predecessors": "",
+    "status": "En proceso",
+    "slack": 0,
+    "type": "project",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 2,
+    "name": "Reconocimiento y diagnóstico inicial",
+    "duration": 34,
+    "start": "2026-08-05",
+    "end": "2026-09-07",
+    "predecessors": "",
+    "status": "Completado",
+    "slack": 0,
+    "type": "summary",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 3,
+    "name": "Recopilar información de KOLCEM y del sector cementero",
+    "duration": 10,
+    "start": "2026-08-05",
+    "end": "2026-08-14",
+    "predecessors": "",
+    "status": "Completado",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 4,
+    "name": "Analizar ventas históricas, demanda y condiciones del mercado",
+    "duration": 10,
+    "start": "2026-08-15",
+    "end": "2026-08-24",
+    "predecessors": "3",
+    "status": "Completado",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 5,
+    "name": "Identificar diferencias entre producción, ventas e inventarios",
+    "duration": 11,
+    "start": "2026-08-25",
+    "end": "2026-09-04",
+    "predecessors": "4",
+    "status": "Completado",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 6,
+    "name": "Consolidar diagnóstico inicial y causas principales",
+    "duration": 3,
+    "start": "2026-09-05",
+    "end": "2026-09-07",
+    "predecessors": "5",
+    "status": "Completado",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 7,
+    "name": "Estudio de la operación y sus restricciones",
+    "duration": 38,
+    "start": "2026-09-08",
+    "end": "2026-10-16",
+    "predecessors": "",
+    "status": "Completado",
+    "slack": 0,
+    "type": "summary",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 8,
+    "name": "Recopilar registros de producción, inventario, pedidos y despachos",
+    "duration": 11,
+    "start": "2026-09-08",
+    "end": "2026-09-18",
+    "predecessors": "6",
+    "status": "En proceso",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 9,
+    "name": "Depurar y comparar registros diarios de producción y despacho",
+    "duration": 14,
+    "start": "2026-09-12",
+    "end": "2026-09-25",
+    "predecessors": "8CC",
+    "status": "Completado",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 10,
+    "name": "Calcular capacidad de producción y restricciones operativas",
+    "duration": 14,
+    "start": "2026-09-19",
+    "end": "2026-10-02",
+    "predecessors": "3",
+    "status": "Completado",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 11,
+    "name": "Analizar días sin producción y sus posibles causas",
+    "duration": 10,
+    "start": "2026-09-26",
+    "end": "2026-10-05",
+    "predecessors": "9",
+    "status": "Completado",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 12,
+    "name": "Analizar las condiciones operativas y el comportamiento de los despachos",
+    "duration": 13,
+    "start": "2026-09-26",
+    "end": "2026-10-08",
+    "predecessors": "9",
+    "status": "Completado",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 13,
+    "name": "Contrastar con KOLCEM los hallazgos y las reglas de operación",
+    "duration": 10,
+    "start": "2026-10-06",
+    "end": "2026-10-15",
+    "predecessors": "10;11CC;12CC",
+    "status": "Completado",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 14,
+    "name": "Hallazgos y restricciones operativas analizados con KOLCEM",
+    "duration": 0,
+    "start": "2026-10-16",
+    "end": "2026-10-16",
+    "predecessors": "13;12",
+    "status": "Completado",
+    "slack": 0,
+    "type": "milestone",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 15,
+    "name": "Preparación y construcción del modelo de simulación",
+    "duration": 22,
+    "start": "2026-10-04",
+    "end": "2026-10-25",
+    "predecessors": "",
+    "status": "En proceso",
+    "slack": 0,
+    "type": "summary",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 16,
+    "name": "Revisar estudios y ejemplos para orientar la simulación",
+    "duration": 7,
+    "start": "2026-10-04",
+    "end": "2026-10-10",
+    "predecessors": "6",
+    "status": "En proceso",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 17,
+    "name": "Documentar el funcionamiento actual de producción, almacenamiento y despacho",
+    "duration": 7,
+    "start": "2026-10-06",
+    "end": "2026-10-12",
+    "predecessors": "10CC",
+    "status": "En proceso",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 18,
+    "name": "Definir procesos, variables, indicadores y reglas del modelo AS-IS",
+    "duration": 7,
+    "start": "2026-10-08",
+    "end": "2026-10-14",
+    "predecessors": "17CC",
+    "status": "En proceso",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 19,
+    "name": "Preparar datos del kárdex y parámetros de entrada",
+    "duration": 7,
+    "start": "2026-10-10",
+    "end": "2026-10-16",
+    "predecessors": "18CC;9",
+    "status": "En proceso",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 20,
+    "name": "Programar la simulación del funcionamiento actual de KOLCEM",
+    "duration": 11,
+    "start": "2026-10-12",
+    "end": "2026-10-22",
+    "predecessors": "18CC;19CC",
+    "status": "En proceso",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 21,
+    "name": "Representar visualmente los procesos de la planta en Blender",
+    "duration": 11,
+    "start": "2026-10-13",
+    "end": "2026-10-23",
+    "predecessors": "20CC",
+    "status": "En proceso",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 22,
+    "name": "Verificar que el simulador ejecute correctamente los cálculos y las reglas programadas",
+    "duration": 8,
+    "start": "2026-10-18",
+    "end": "2026-10-25",
+    "predecessors": "20CC",
+    "status": "En proceso",
+    "slack": 0,
+    "type": "task",
+    "critical": true,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 23,
+    "name": "Modelo del funcionamiento actual (AS-IS) verificado",
+    "duration": 0,
+    "start": "2026-10-25",
+    "end": "2026-10-25",
+    "predecessors": "22FF;21",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "milestone",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 24,
+    "name": "Validación del modelo con datos reales",
+    "duration": 11,
+    "start": "2026-10-19",
+    "end": "2026-10-29",
+    "predecessors": "",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "summary",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 25,
+    "name": "Ejecutar el modelo de simulación con datos del funcionamiento actual",
+    "duration": 6,
+    "start": "2026-10-19",
+    "end": "2026-10-24",
+    "predecessors": "22CC",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "task",
+    "critical": true,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 26,
+    "name": "Comparar la producción, los inventarios y los despachos simulados con los registros históricos",
+    "duration": 5,
+    "start": "2026-10-23",
+    "end": "2026-10-27",
+    "predecessors": "25CC",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "task",
+    "critical": true,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 27,
+    "name": "Analizar diferencias, calcular errores y aplicar pruebas estadísticas para validar el modelo",
+    "duration": 4,
+    "start": "2026-10-25",
+    "end": "2026-10-28",
+    "predecessors": "26CC",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "task",
+    "critical": true,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 28,
+    "name": "Ajustar parámetros y documentar los resultados y limitaciones de la validación",
+    "duration": 3,
+    "start": "2026-10-27",
+    "end": "2026-10-29",
+    "predecessors": "27CC",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "task",
+    "critical": true,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 29,
+    "name": "Modelo AS-IS validado",
+    "duration": 0,
+    "start": "2026-10-29",
+    "end": "2026-10-29",
+    "predecessors": "28FF",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "milestone",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 30,
+    "name": "Diseño y comparación de alternativas de mejora",
+    "duration": 25,
+    "start": "2026-10-17",
+    "end": "2026-11-10",
+    "predecessors": "",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "summary",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 31,
+    "name": "Definir escenarios de programación de producción y paradas",
+    "duration": 9,
+    "start": "2026-10-17",
+    "end": "2026-10-25",
+    "predecessors": "14",
+    "status": "Pendiente",
+    "slack": 4,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 32,
+    "name": "Definir escenarios de capacidad de molienda, almacenamiento y despacho",
+    "duration": 11,
+    "start": "2026-10-17",
+    "end": "2026-10-27",
+    "predecessors": "14",
+    "status": "Pendiente",
+    "slack": 2,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 33,
+    "name": "Configurar y ejecutar escenarios TO-BE en el simulador",
+    "duration": 6,
+    "start": "2026-10-30",
+    "end": "2026-11-04",
+    "predecessors": "29;31;32",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "task",
+    "critical": true,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 34,
+    "name": "Evaluar la meta de producción y los cuellos de botella bajo mayor demanda",
+    "duration": 5,
+    "start": "2026-11-02",
+    "end": "2026-11-06",
+    "predecessors": "33CC",
+    "status": "Pendiente",
+    "slack": 3,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 35,
+    "name": "Comparar alternativas según producción, inventarios, servicio y costos",
+    "duration": 6,
+    "start": "2026-11-05",
+    "end": "2026-11-10",
+    "predecessors": "33;34CC",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "task",
+    "critical": true,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 36,
+    "name": "Alternativas evaluadas con resultados comparables",
+    "duration": 0,
+    "start": "2026-11-10",
+    "end": "2026-11-10",
+    "predecessors": "35FF;34",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "milestone",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 37,
+    "name": "Selección y presentación de la propuesta a KOLCEM",
+    "duration": 17,
+    "start": "2026-11-11",
+    "end": "2026-11-27",
+    "predecessors": "",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "summary",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 38,
+    "name": "Evaluar costos, beneficios, riesgos y facilidad de implementación",
+    "duration": 5,
+    "start": "2026-11-11",
+    "end": "2026-11-15",
+    "predecessors": "36",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "task",
+    "critical": true,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 39,
+    "name": "Comparar alternativas y seleccionar la mejora más conveniente",
+    "duration": 6,
+    "start": "2026-11-12",
+    "end": "2026-11-17",
+    "predecessors": "38CC",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "task",
+    "critical": true,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 40,
+    "name": "Preparar pasos, recursos y responsables para implementar la propuesta",
+    "duration": 4,
+    "start": "2026-11-16",
+    "end": "2026-11-19",
+    "predecessors": "39CC",
+    "status": "Pendiente",
+    "slack": 7,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 41,
+    "name": "Revisar la propuesta con KOLCEM e incorporar observaciones",
+    "duration": 4,
+    "start": "2026-11-16",
+    "end": "2026-11-19",
+    "predecessors": "39CC",
+    "status": "Pendiente",
+    "slack": 7,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 42,
+    "name": "Consolidar resultados y redactar recomendaciones para la empresa",
+    "duration": 5,
+    "start": "2026-11-16",
+    "end": "2026-11-20",
+    "predecessors": "39CC;36",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 43,
+    "name": "Preparar material de presentación de resultados para KOLCEM",
+    "duration": 4,
+    "start": "2026-11-21",
+    "end": "2026-11-24",
+    "predecessors": "42",
+    "status": "Pendiente",
+    "slack": 2,
+    "type": "task",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  },
+  {
+    "id": 44,
+    "name": "Presentar propuesta final y resultados a KOLCEM",
+    "duration": 0,
+    "start": "2026-11-27",
+    "end": "2026-11-27",
+    "predecessors": "40;41;43",
+    "status": "Pendiente",
+    "slack": 0,
+    "type": "milestone",
+    "critical": false,
+    "progress": null,
+    "actualStart": "",
+    "actualEnd": "",
+    "forecastEnd": "",
+    "comment": ""
+  }
+]</script>
+<script>
+(function(){
+'use strict';
+const DATA_EL = document.getElementById('dataset');
+const ORIGINAL = JSON.parse(DATA_EL.textContent);
+const CACHE_KEY = 'kolcem-gantt-v2:' + location.pathname;
+const OLD_CACHE_KEY = 'kolcem-gantt-v1:' + location.pathname;
+const PREF_KEY='kolcem-gantt-preferences-v1';
+const COLS=[['id','ID',52],['name','Nombre de tarea',340],['type','Tipo de actividad',114],['duration','Duración',76],['start','Inicio plan',104],['end','Fin plan',104],['predecessors','Predecesoras',114],['successors','Sucesoras',104],['status','Estado',106],['progress','Avance real',95],['plannedProgress','Avance plan',96],['actualStart','Inicio real',100],['actualEnd','Fin real',100],['forecastEnd','Fin previsto',100],['slack','Demora permisible',76]];
+const TYPE_LABEL={project:'Proyecto',summary:'Etapa',task:'Actividad',milestone:'Hito'};
+const REL_LABEL={FC:'Fin a Comienzo',CC:'Comienzo a Comienzo',FF:'Fin a Fin',CF:'Comienzo a Fin'};
+let tasks=deepCopy(ORIGINAL);
+try{const saved=localStorage.getItem(CACHE_KEY)||localStorage.getItem(OLD_CACHE_KEY);if(saved){const t=JSON.parse(saved);if(Array.isArray(t)&&t.length){tasks=t.map(row=>({...ORIGINAL.find(x=>x.id===row.id),...row}));}}}catch(e){}
+let colSizes=Object.fromEntries(COLS.map(x=>[x[0],x[2]])),hidden=new Set(),collapsed=new Set(),sidebar=800,zoom=21,highlight=true,arrows=true,tableHidden=false,cutoff="2026-10-19",visible=[],rangeStart,rangeEnd,rangeDays,editingId=null,toastTimer=null,syncing=false;
+try{const prefs=JSON.parse(localStorage.getItem(PREF_KEY)||'{}');if(prefs.colSizes)Object.assign(colSizes,prefs.colSizes);if(prefs.sidebar)sidebar=prefs.sidebar;if(prefs.zoom)zoom=prefs.zoom;if(prefs.cutoff)cutoff=prefs.cutoff;if(Array.isArray(prefs.hidden))hidden=new Set(prefs.hidden);}catch(e){}
+const $=id=>document.getElementById(id);
+const DAY=86400000,ROW=47;
+function deepCopy(x){return JSON.parse(JSON.stringify(x));}
+function ts(s){return Date.parse(s+'T00:00:00Z');}
+function daysBetween(a,b){return Math.round((ts(b)-ts(a))/DAY);}
+function asISO(d){return new Date(d).toISOString().slice(0,10);}
+const ES=new Intl.DateTimeFormat('es-CO',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'});
+const MONTH=new Intl.DateTimeFormat('es-CO',{month:'long',year:'numeric',timeZone:'UTC'});
+function fmt(s){const [y,m,d]=s.split('-');return d+'/'+m+'/'+y.slice(-2);}
+function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function duration(t){return t.type==='milestone'?0:(t.duration??Math.max(1,daysBetween(t.start,t.end)+1));}
+function persist(){
+ try{localStorage.setItem(CACHE_KEY,JSON.stringify(tasks))}catch(e){notify('No se pudo guardar una copia local')}
+ if(window.kolcemCloud?.canEdit){window.kolcemCloud.save(deepCopy(tasks));}
+}
+function pref(){try{localStorage.setItem(PREF_KEY,JSON.stringify({colSizes,sidebar,zoom,cutoff,hidden:[...hidden]}))}catch(e){}}
+function notify(s){const el=$('toast');el.textContent=s;el.classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('visible'),3500)}
+function getVisible(){
+ const q=$('search').value.trim().toLowerCase(),status=$('filter').value,typ=$('typeFilter').value;
+ let hiding=false;return tasks.filter(t=>{if(t.type==='summary'&&t.id!==1)hiding=collapsed.has(t.id);if(t.type==='project')hiding=false;if(hiding&&t.type!=='summary')return false;return (!q||String(t.id).includes(q)||t.name.toLowerCase().includes(q))&&(status==='all'||t.status===status)&&(typ==='all'||t.type===typ);});
+}
+function updateStats(){
+ $('statTasks').textContent=tasks.length;$('statDone').textContent=tasks.filter(t=>t.status==='Completado').length;
+ $('statProgress').textContent=tasks.filter(t=>t.status==='En proceso').length;
+ $('statCritical').textContent=tasks.filter(t=>t.critical).length;
+}
+function dateRange(){let min=Math.min(ts('2026-08-01'),...tasks.map(t=>ts(t.start)));let max=Math.max(ts('2026-12-31'),...tasks.flatMap(t=>[ts(t.end),...(t.forecastEnd?[ts(t.forecastEnd)]:[])]));const a=new Date(min),b=new Date(max);rangeStart=asISO(Date.UTC(a.getUTCFullYear(),a.getUTCMonth(),1));rangeEnd=asISO(Date.UTC(b.getUTCFullYear(),b.getUTCMonth()+1,0));rangeDays=daysBetween(rangeStart,rangeEnd)+1;}
+function xDate(s){return daysBetween(rangeStart,s)*zoom;}
+function colorStatus(t){return t.status==='Completado'?'completed':t.status==='En proceso'?'progress':'pending';}
+function updateColumns(){let cols=COLS.filter(c=>!hidden.has(c[0]));if(!cols.length){hidden.delete('name');cols=COLS.filter(c=>!hidden.has(c[0]))}const grid=cols.map(c=>Math.max(45,colSizes[c[0]])+'px').join(' '),size=cols.reduce((n,c)=>n+Math.max(45,colSizes[c[0]]),0)+'px';document.documentElement.style.setProperty('--columns',grid);document.documentElement.style.setProperty('--table-total',size);$('leftHeader').innerHTML=cols.map(c=>`<div class="hcell" title="Arrastra el borde derecho para cambiar el ancho">${safe(c[1])}<span class="resize-handle" data-col="${c[0]}" role="separator" aria-label="Cambiar ancho de ${safe(c[1])}"></span></div>`).join('');}
+function paintTable(){
+ const cols=COLS.filter(c=>!hidden.has(c[0]));
+ $('leftRows').innerHTML=visible.map(t=>{
+   const statusClass=t.status==='Completado'?'pill-completed':t.status==='En proceso'?'pill-progress':'pill-pending';
+   const marks=t.type==='project'?'▰':t.type==='summary'?'▸':t.type==='milestone'?'◆':'•';
+   return `<div class="trow ${t.type} ${isOverdue(t)?'overdue':''}" data-task="${t.id}" title="Abrir #${t.id}: ${safe(t.name)}">${cols.map(c=>{
+     let val='';switch(c[0]){
+      case'id':val=t.id;break;
+      case'name':val=`<div class="tree" style="padding-left:${t.type==='project'?0:t.type==='summary'?8:21}px">${t.type==='summary'?`<button class="caret" data-collapse="${t.id}" title="Contraer o expandir etapa">${collapsed.has(t.id)?'▸':'▾'}</button>`:''}<span class="tree-mark ${t.type==='project'?'is-project':t.type==='milestone'?'is-milestone':''}">${marks}</span><span class="tree-text">${safe(t.name)}</span></div>`;break;
+      case'type':val=`<span class="type-pill ${t.type}">${TYPE_LABEL[t.type]||'Actividad'}</span>`;break;
+      case'duration':val=duration(t)+' días';break;
+      case'start':val=fmt(t.start);break;
+      case'end':val=fmt(t.end);break;
+      case'predecessors':val=safe(t.predecessors||'—');break;
+      case'successors':val=successorLinks(t.id).map(x=>'#'+x.id+(x.rel==='FC'?'':x.rel)).join('; ')||'—';break;
+      case'status':val=`<span class="${statusClass}">${safe(t.status)}</span>`;break;
+      case'progress':val=progressChip(t.progress);break;
+      case'plannedProgress':val=progressChip(plannedPct(t));break;
+      case'actualStart':case'actualEnd':case'forecastEnd':val=t[c[0]]?fmt(t[c[0]]):'—';break;
+      case'slack':val=(t.slack??0)+' días';break;
+     }
+     return `<div class="cell ${c[0]==='progress'||c[0]==='plannedProgress'?'pct':c[0]} ${c[0]==='slack'&&t.slack>0?'warn':''}" title="${safe(c[1])}: ${safe(t[c[0]]??'Sin registrar')}">${val}</div>`;
+   }).join('')}</div>`;
+ }).join('');
+}
+function drawHeader(){
+ const end=rangeDays*zoom;$('timelineHead').style.width=end+'px';let months='',days='';let cursor=ts(rangeStart),lastMonth='',monthLen=0,mi='';
+ const flush=()=>{if(monthLen)months+=`<div class="month" style="width:${monthLen*zoom}px">${safe(mi)}</div>`};
+ for(let i=0;i<rangeDays;i++){const d=new Date(cursor+i*DAY),m=d.getUTCMonth(),y=d.getUTCFullYear(),ds=asISO(d.getTime()),key=y+'-'+m;
+  if(key!==lastMonth){flush();monthLen=0;lastMonth=key;mi=MONTH.format(d)}monthLen++;const week=d.getUTCDay();
+  const showLabel=zoom>=32||d.getUTCDate()===1||d.getUTCDate()%((zoom>=18)?3:7)===1;
+  days+=`<div title="${fmt(ds)}" class="day ${week===0||week===6?'weekend':''} ${d.getUTCDate()===1?'month-start':''} ${ds===cutoff?'today':''}" style="width:${zoom}px">${showLabel?d.getUTCDate():''}</div>`;
+ }
+ flush();$('months').innerHTML=months;$('days').innerHTML=days;
+}
+function makeSvg(){if(!arrows)return '';const byId=Object.fromEntries(visible.map((t,i)=>[t.id,{t,i}]));let paths='';let counter=0;for(const to of visible){if(to.type==='summary'||to.type==='project')continue;const preds=String(to.predecessors||'').split(/[;,]/).map(s=>s.trim()).filter(Boolean);for(const pred of preds){const m=pred.match(/^(\d+)(CC|FF|FC|CF)?$/i);if(!m)continue;const source=byId[+m[1]],target=byId[to.id];if(!source||!target)continue;const from=source.t,toT=target.t;const typ=(m[2]||'FC').toUpperCase();let x1=xDate(typ==='CC'||typ==='CF'?from.start:from.end)+(typ==='CC'||typ==='CF'?zoom/2:zoom);let x2=xDate(typ==='FF'||typ==='CF'?toT.end:toT.start)+(typ==='FF'||typ==='CF'?zoom/2:zoom/2);let y1=source.i*ROW+ROW/2,y2=target.i*ROW+ROW/2;let midX;if(x2-x1>16)midX=x1+Math.min(18,(x2-x1)/2);else midX=Math.min(x1,x2)-12-(counter%3)*5;const isRed=highlight&&from.critical&&toT.critical;const col=isRed?'#e04c56':'#58abc5';const points=`M${x1.toFixed(1)},${y1.toFixed(1)} L${midX.toFixed(1)},${y1.toFixed(1)} L${midX.toFixed(1)},${y2.toFixed(1)} L${(x2-4).toFixed(1)},${y2.toFixed(1)}`;paths+=`<path d="${points}" fill="none" stroke="${col}" stroke-width="${isRed?1.8:1.15}" opacity="${isRed?.92:.74}" marker-end="url(#${isRed?'redArrow':'blueArrow'})"/>`;counter++;}}return `<svg class="dep-svg" width="${rangeDays*zoom}" height="${visible.length*ROW}" viewBox="0 0 ${rangeDays*zoom} ${visible.length*ROW}" aria-hidden="true"><defs><marker id="blueArrow" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="#58abc5"/></marker><marker id="redArrow" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="#e04c56"/></marker></defs>${paths}</svg>`;}
+function drawChart(){
+ const width=rangeDays*zoom,height=visible.length*ROW,element=$('plotBody');element.style.width=width+'px';element.style.height=height+'px';
+ let under='',last='';for(let i=0;i<rangeDays;i++){
+  const d=new Date(ts(rangeStart)+i*DAY),day=d.getUTCDay(),monthkey=d.getUTCFullYear()+'-'+d.getUTCMonth(),x=i*zoom;
+  if(day===0||day===6)under+=`<div class="weekend-shade" style="left:${x}px;width:${zoom}px"></div>`;
+  if(day===1)under+=`<div class="week-boundary" style="left:${x}px"></div>`;
+  if(monthkey!==last){if(i!==0)under+=`<div class="month-boundary" style="left:${x}px"></div>`;last=monthkey;}
+ }
+ let rowBg='',cells='';visible.forEach((t,i)=>{const y=i*ROW;rowBg+=`<div class="plot-row ${t.type}" style="top:${y}px"></div>`;
+  const x=xDate(t.start),w=Math.max(zoom/2,(daysBetween(t.start,t.end)+1)*zoom),isMilestone=t.type==='milestone';
+  const cls=t.type==='summary'?'summary':t.type==='project'?'project':isMilestone?'mile':colorStatus(t)+(t.critical&&highlight?' critical':'');
+  const barY=y+(ROW-(t.type==='summary'||t.type==='project'?10:isMilestone?12:14))/2;
+  const mid=isMilestone?x+zoom/2-6:x+3,barW=isMilestone?12:Math.max(5,w-6),labelAt=isMilestone?mid+17:x+w+4;
+  const labelClass=t.type==='summary'?'summary':t.type==='project'?'project':isMilestone?'milestone':t.critical?'crit-label':'';
+  const labelText=t.type==='project'?'PROYECTO KOLCEM':t.name;
+  const hasP=t.progress!==null&&t.progress!==undefined&&t.progress!==''&&Number.isFinite(Number(t.progress));
+  const fill=hasP&&!isMilestone&&t.type==='task'?`<span class="progress-fill" style="width:${Math.max(0,Math.min(100,Number(t.progress)))}%"></span>`:'';
+  cells+=`<div class="gbar ${cls}" data-task="${t.id}" title="#${t.id} · ${safe(TYPE_LABEL[t.type]||'Actividad')} · ${safe(t.name)} · ${fmt(t.start)} a ${fmt(t.end)}${hasP?' · avance real '+t.progress+'%':''}${t.critical?' · barra roja en PDF':''}" style="left:${mid}px;top:${barY}px;width:${barW}px">${fill}</div>`;
+  if(t.forecastEnd&&t.forecastEnd!==t.end){let x2=xDate(t.forecastEnd);let xa=Math.min(x+w,x2+zoom/2),xb=Math.max(x+w,x2+zoom/2);cells+=`<div class="gbar forecast" title="Fin previsto actualizado: ${fmt(t.forecastEnd)}" style="left:${xa}px;top:${barY+16}px;width:${Math.max(6,xb-xa)}px"></div>`;}
+  cells+=`<div class="bar-label ${labelClass}" style="left:${Math.max(0,labelAt)}px;top:${y}px" title="${safe(t.name)}">${safe(labelText)}</div>`;
+ });
+ let todayMark='';if(daysBetween(rangeStart,cutoff)>=0&&daysBetween(cutoff,rangeEnd)>=0)todayMark=`<div class="today-line" style="left:${xDate(cutoff)+zoom/2}px"><span>CORTE</span></div>`;
+ element.classList.toggle('faded',highlight);element.innerHTML=rowBg+under+makeSvg()+todayMark+cells;
+}
+function draw({keepScroll=true}={}){const left=$('tablePane'),right=$('timeline'),ls=left.scrollTop,rs=right.scrollTop,rx=right.scrollLeft;dateRange();visible=getVisible();updateStats();updateColumns();paintTable();drawHeader();drawChart();if(keepScroll){left.scrollTop=ls;right.scrollTop=rs;right.scrollLeft=rx;}}
+function updateZoom(n){const right=$('timeline'),center=right.scrollLeft+right.clientWidth/2,currentDay=center/zoom;zoom=Math.max(9,Math.min(52,Math.round(n)));pref();draw();right.scrollLeft=currentDay*zoom-right.clientWidth/2;$('zoomRead').textContent=Math.round(zoom/21*100)+'%';}
+function jumpToDay(s){const right=$('timeline');right.scrollLeft=Math.max(0,xDate(s)-right.clientWidth*.42);}
+function today(){jumpToDay(cutoff);}
+function openEdit(id){
+ if(!window.kolcemCloud?.canEdit){notify('Solo lectura: inicia sesión con una cuenta autorizada para editar.');document.getElementById('loginOverlay').classList.add('show');return;}
+ let t=tasks.find(x=>x.id===id);editingId=t?t.id:null;
+ t=t||{id:Math.max(0,...tasks.map(x=>x.id))+1,name:'Nueva actividad',start:cutoff,end:cutoff,type:'task',status:'Pendiente',predecessors:'',slack:0,critical:false,progress:null,actualStart:'',actualEnd:'',forecastEnd:'',comment:''};
+ $('modalTitle').textContent=(editingId?'Editar #'+t.id:'Nueva actividad #'+t.id)+' · '+(TYPE_LABEL[t.type]||'Actividad');
+ $('fName').value=t.name;$('fStart').value=t.start;$('fEnd').value=t.end;$('fStatus').value=t.status;$('fType').value=t.type;
+ $('fPreds').value=t.predecessors||'';$('fSlack').value=t.slack??0;$('fCritical').checked=!!t.critical;
+ $('fProgress').value=t.progress??'';$('fActualStart').value=t.actualStart||'';$('fActualEnd').value=t.actualEnd||'';
+ $('fForecast').value=t.forecastEnd||'';$('fComment').value=t.comment||'';
+ $('deleteBtn').hidden=!editingId;$('modal').classList.add('show');updateRelationPreview(t.id);$('fName').focus();
+}
+function closeEdit(){$('modal').classList.remove('show');}
+function download(filename,data,mime){const blob=new Blob([data],{type:mime}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+function exportHtml(){const html=document.documentElement.cloneNode(true);html.querySelector('#dataset').textContent=JSON.stringify(tasks).replace(/</g,'\\u003c');html.querySelector('#modal').classList.remove('show');html.querySelectorAll('.dropdown.visible').forEach(n=>n.classList.remove('visible'));const doc='<!DOCTYPE html>\n'+html.outerHTML;download('index.html',doc,'text/html;charset=utf-8');notify('HTML actualizado descargado. Puedes subirlo a GitHub Pages.');}
+function resizeColumn(key,pointerEvent){pointerEvent.preventDefault();pointerEvent.stopPropagation();const firstX=pointerEvent.clientX,start=colSizes[key];const move=e=>{colSizes[key]=Math.max(key==='name'?150:54,Math.min(800,start+e.clientX-firstX));updateColumns();document.querySelectorAll('.trow').forEach(n=>{n.style.gridTemplateColumns='var(--columns)';n.style.width='var(--table-total)'});};const up=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);pref();draw();};window.addEventListener('pointermove',move);window.addEventListener('pointerup',up,{once:true});}
+function showFields(){const c=$('fieldChecks');c.innerHTML=COLS.map(x=>`<label><input type="checkbox" data-field="${x[0]}" ${hidden.has(x[0])?'':'checked'}>${safe(x[1])}</label>`).join('');$('fieldsMenu').classList.toggle('visible');$('fieldsBtn').setAttribute('aria-expanded',$('fieldsMenu').classList.contains('visible'));}
+function setSidebar(n){sidebar=Math.max(155,Math.min(window.innerWidth-170,Math.max(280,n)));$('board').style.setProperty('--sidebar',sidebar+'px');pref();}
+
+function parsePreds(str){
+ return String(str||'').split(/[;,]/).map(s=>s.trim()).filter(Boolean).map(raw=>{
+  const m=raw.match(/^(\d+)(FC|CC|FF|CF)?$/i);
+  return m?{id:+m[1],rel:(m[2]||'FC').toUpperCase(),raw}:{raw,invalid:true};
+ });
+}
+function successorLinks(id){return tasks.flatMap(t=>parsePreds(t.predecessors).filter(p=>p.id===id).map(p=>({id:t.id,rel:p.rel})));}
+function progressChip(val){
+ if(val===undefined||val===null||val==='')return `<span class="pcttext empty" title="No registrado">s/d</span>`;
+ const n=Math.max(0,Math.min(100,Number(val)||0));return `<span class="pctbox"><span class="pcttrack"><span class="pctfill" style="width:${n}%"></span></span><span class="pcttext">${n}%</span></span>`;
+}
+function plannedPct(t){
+ if(t.type==='milestone')return ts(cutoff)>=ts(t.start)?100:0;
+ if(t.type!=='task')return null;
+ if(ts(cutoff)<ts(t.start))return 0;
+ if(ts(cutoff)>ts(t.end))return 100;
+ return Math.max(0,Math.min(100,Math.round((daysBetween(t.start,cutoff)+1)/Math.max(1,daysBetween(t.start,t.end)+1)*100)));
+}
+function isOverdue(t){return ['task','milestone'].includes(t.type)&&t.status!=='Completado'&&ts(t.end)<ts(cutoff);}
+function relationsHtml(id){
+ const t=tasks.find(x=>x.id===id);if(!t)return '';
+ const preds=parsePreds(t.predecessors);const succ=successorLinks(id);
+ const button=(rel,isPred)=>{const x=tasks.find(t=>t.id===rel.id);return `<button type="button" class="rel-link" data-nav-task="${rel.id}" title="${safe(x?.name||'')}" >#${rel.id} · ${safe(REL_LABEL[rel.rel]||rel.rel)} ${isPred?'←':'→'}</button>`;};
+ return `<div class="rel-group"><strong>Predecesoras (${preds.length})</strong>: ${preds.length?preds.map(x=>x.invalid?`<span class="an-flag">Expresión inválida: ${safe(x.raw)}</span>`:button(x,true)).join(' '):'Ninguna'}</div><div class="rel-group"><strong>Sucesoras (${succ.length})</strong>: ${succ.length?succ.map(x=>button(x,false)).join(' '):'Ninguna'}</div>`;
+}
+function updateRelationPreview(id){
+ if(!id){$('relationPreview').textContent='Guarda primero la nueva actividad para consultar sus sucesoras.';return;}
+ const t=tasks.find(x=>x.id===id);const val=$('fPreds').value;
+ const mock=t?{...t,predecessors:val}:null;
+ if(!mock)return;
+ const preds=parsePreds(mock.predecessors);const succ=successorLinks(id);
+ const link=(p,reverse)=>`<button type="button" class="rel-link" data-nav-task="${p.id}">#${p.id}: ${safe(REL_LABEL[p.rel]||'Enlace desconocido')} ${reverse?'(predecesora)':'(sucesora)'}</button>`;
+ $('relationPreview').innerHTML=`<div class="rel-group"><strong>Predecesoras:</strong> ${preds.length?preds.map(p=>p.invalid?`<span class="an-flag">${safe(p.raw)} no es válido</span>`:link(p,true)).join(' '):'Ninguna'}</div><div class="rel-group"><strong>Sucesoras:</strong> ${succ.length?succ.map(p=>link(p,false)).join(' '):'Ninguna'}</div>`;
+}
+function linksAudit(){
+ const problems=[],edges=[];
+ for(const t of tasks){for(const p of parsePreds(t.predecessors)){
+  if(p.invalid){problems.push({id:t.id,detail:'Predecesora mal escrita: '+p.raw});continue;}
+  const src=tasks.find(x=>x.id===p.id);
+  if(!src){problems.push({id:t.id,detail:'La predecesora #'+p.id+' no existe'});continue;}
+  if(src.id===t.id){problems.push({id:t.id,detail:'La tarea se vincula a sí misma'});continue;}
+  edges.push({from:src,to:t,rel:p.rel});
+  const valid=p.rel==='FC'?ts(t.start)>ts(src.end):p.rel==='CC'?ts(t.start)>=ts(src.start):p.rel==='FF'?ts(t.end)>=ts(src.end):ts(t.end)>=ts(src.start);
+  if(!valid)problems.push({id:t.id,detail:`Revisar coherencia ${p.rel} con #${src.id}; las fechas planificadas no respetan la secuencia simple, sin desfases`});
+ }}
+ const visited=new Set(),stack=new Set(),graph=new Map();for(const e of edges)graph.set(e.from.id,[...(graph.get(e.from.id)||[]),e.to.id]);
+ const cycle=new Set();function visit(n){if(stack.has(n)){cycle.add(n);return}if(visited.has(n))return;visited.add(n);stack.add(n);for(const z of graph.get(n)||[])visit(z);stack.delete(n)}for(const t of tasks)visit(t.id);
+ if(cycle.size)problems.push({id:[...cycle][0],detail:'Posible ciclo de dependencias: comprobar que no exista una cadena circular'});
+ return {edges,problems};
+}
+function analysisRow(t,comment=''){
+ return `<tr><td><button type="button" data-nav-task="${t.id}">#${t.id} ↗</button></td><td>${safe(t.name)}</td><td><span class="type-pill ${t.type}">${safe(TYPE_LABEL[t.type]||t.type)}</span></td><td>${fmt(t.end)}</td><td>${t.forecastEnd?fmt(t.forecastEnd):'—'}</td><td>${safe(t.status)}</td><td>${t.progress!=null?safe(t.progress)+'%':'s/d'}</td>${comment?`<td>${safe(comment)}</td>`:''}</tr>`;
+}
+const A_HEAD='<tr><th>Ver</th><th>Actividad</th><th>Tipo</th><th>Fin plan</th><th>Fin previsto</th><th>Estado</th><th>Avance real</th>';
+let activeTab='summary';
+function renderAnalysis(){
+ const {edges,problems}=linksAudit();
+ const overdue=tasks.filter(isOverdue),unspecified=tasks.filter(t=>t.type==='task'&&t.status==='En proceso'&&t.progress==null);
+ const milestones=tasks.filter(t=>t.type==='milestone');
+ const tomorrow=tasks.filter(t=>t.type==='task'&&t.status!=='Completado'&&t.start<=cutoff&&t.end>=cutoff);
+ const futureForecast=tasks.filter(t=>t.forecastEnd&&t.forecastEnd>t.end&&['task','milestone'].includes(t.type));
+ const incomplete=tasks.filter(t=>t.type==='task'&&t.status!=='Completado');
+ const summaryProblems=tasks.filter((t,i)=>t.type==='summary'&&t.status==='Completado'&&tasks.slice(i+1, tasks.findIndex((x,ix)=>ix>i&&x.type==='summary')<0?tasks.length:tasks.findIndex((x,ix)=>ix>i&&x.type==='summary')).some(c=>c.type==='task'&&c.status!=='Completado'));
+ let h='';
+ if(activeTab==='summary'){
+  h+=`<div class="an-grid"><div class="an-metric"><div class="num">${tasks.filter(t=>t.type==='project').length}/ ${tasks.filter(t=>t.type==='summary').length}/ ${tasks.filter(t=>t.type==='task').length}/ ${milestones.length}</div><div class="small">Proyecto · Etapas · Actividades · Hitos</div></div><div class="an-metric"><div class="num">${overdue.length}</div><div class="small">Pendientes o en proceso con fin planificado ya vencido</div></div><div class="an-metric"><div class="num">${edges.length}</div><div class="small">Vínculos entre actividades identificados</div></div><div class="an-metric"><div class="num">${incomplete.length}</div><div class="small">Actividades no completadas (${unspecified.length} en proceso sin % real)</div></div></div>`;
+  h+=`<div class="an-notice"><strong>¿Se cumple el 27/11/2026?</strong> El cronograma fija esa fecha como entrega final (hito #44). ${futureForecast.length?'Hay '+futureForecast.length+' actividades con fin previsto posterior al plan; revisa su impacto sobre sucesoras.':'No se registran fechas nuevas de pronóstico.'} Sin avances reales confirmados ni reajuste integral de vínculos, no se puede demostrar automáticamente el cumplimiento de la entrega.</div>`;
+  h+=`<h3>Actividades vencidas al corte del ${fmt(cutoff)} (${overdue.length})</h3>${overdue.length?`<div style="overflow:auto"><table class="an-table"><thead>${A_HEAD}</tr></thead><tbody>${overdue.map(t=>analysisRow(t)).join('')}</tbody></table></div>`:'<p class="an-info">No hay actividades sin completar cuya fecha de fin planificada sea anterior a la fecha de corte.</p>'}`;
+  h+=`<h3>Revisiones de consistencia</h3>`;
+  if(summaryProblems.length)h+=`<div class="an-notice"><strong>Estados a revisar:</strong> ${summaryProblems.map(t=>`La etapa #${t.id} figura como completada y tiene actividades internas sin completar`).join('; ')}.</div>`;
+  h+=problems.length?`<div class="an-group">${problems.map(p=>`<div class="an-notice"><button class="btn" data-nav-task="${p.id}">#${p.id} ↗</button> ${safe(p.detail)}</div>`).join('')}</div>`:'<div class="an-notice neutral">No se detectaron referencias inexistentes ni incompatibilidades de fechas básicas en las dependencias registradas. Esto no sustituye el análisis de calendarios, restricciones ni holguras en MS Project.</div>';
+  h+=`<h3>En ejecución al corte (${tomorrow.length})</h3><p class="an-info">Las barras del diagrama muestran únicamente progreso real que hayas registrado manualmente. El % plan se estima linealmente por días calendario para facilitar la comparación, NO fue proporcionado en el PDF.</p>`;
+  h+=tomorrow.length?`<div style="overflow:auto"><table class="an-table"><thead>${A_HEAD}</tr></thead><tbody>${tomorrow.map(t=>analysisRow(t)).join('')}</tbody></table></div>`:'';
+ }
+ if(activeTab==='links'){
+  const counts=edges.reduce((a,e)=>(a[e.rel]=(a[e.rel]||0)+1,a),{});
+  h+=`<div class="an-grid">${['FC','CC','FF','CF'].map(t=>`<div class="an-metric"><div class="num">${counts[t]||0}</div><div class="small">${REL_LABEL[t]}</div></div>`).join('')}</div>`;
+  h+=`<div class="an-notice neutral">FC = Fin a Comienzo (vínculo sin sufijo en el PDF) · CC = Comienzo a Comienzo · FF = Fin a Fin · CF = Comienzo a Fin. Selecciona cualquier fila para revisar todas sus predecesoras y sucesoras.</div>`;
+  h+=`<div style="overflow:auto"><table class="an-table"><thead><tr><th>Predecesora</th><th>Relación</th><th>Sucesora</th><th>Fin predecesora</th><th>Inicio sucesora</th><th>Detalle</th></tr></thead><tbody>${edges.map(e=>`<tr><td><button data-nav-task="${e.from.id}">#${e.from.id} ↗</button> ${safe(e.from.name)}</td><td><strong>${e.rel}</strong><br><span class="an-info">${REL_LABEL[e.rel]}</span></td><td><button data-nav-task="${e.to.id}">#${e.to.id} ↗</button> ${safe(e.to.name)}</td><td>${fmt(e.from.end)}</td><td>${fmt(e.to.start)}</td><td>${safe(e.to.predecessors)}</td></tr>`).join('')}</tbody></table></div>`;
+ }
+ if(activeTab==='milestones'){
+  h+=`<div class="an-notice neutral">Los hitos son actividades de duración 0. Identifican las entregas verificables del proyecto. Para cada hito puedes abrir la ficha, consultar los vínculos y añadir un fin real o fin previsto actualizado.</div>`;
+  h+=`<div style="overflow:auto"><table class="an-table"><thead>${A_HEAD}<th>Predecesoras</th></tr></thead><tbody>${milestones.map(t=>analysisRow(t,safe(t.predecessors))).join('')}</tbody></table></div>`;
+  h+=`<h3>Secuencia de etapas</h3><div class="an-group">${tasks.filter(t=>t.type==='summary').map(t=>`<div class="an-notice neutral"><strong>#${t.id} · ${safe(t.name)}</strong> · ${fmt(t.start)} → ${fmt(t.end)} · ${safe(t.status)} <button class="btn" data-nav-task="${t.id}">Revisar etapa ↗</button></div>`).join('')}</div>`;
+ }
+ $('analysisContent').innerHTML=h;
+ document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===activeTab));
+}
+function validatePreds(id,preds){
+ for(const p of parsePreds(preds)){if(p.invalid)return `La predecesora «${p.raw}» es inválida. Usa 25, 25CC, 25FF o 25CF.`;
+  if(p.id===id)return 'No puedes vincular una actividad consigo misma.';
+  if(!tasks.some(x=>x.id===p.id))return `La predecesora #${p.id} no existe.`;
+ }
+ return null;
+}
+
+// Sync vertical scroll between the task table and the Gantt viewport.
+$('tablePane').addEventListener('scroll',()=>{if(syncing)return;syncing=true;$('timeline').scrollTop=$('tablePane').scrollTop;syncing=false;},{passive:true});
+$('timeline').addEventListener('scroll',()=>{if(syncing)return;syncing=true;$('tablePane').scrollTop=$('timeline').scrollTop;syncing=false;},{passive:true});
+$('splitter').addEventListener('pointerdown',e=>{e.preventDefault();const x=e.clientX,s=sidebar;function move(ev){setSidebar(s+ev.clientX-x)}function up(){window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up)}window.addEventListener('pointermove',move);window.addEventListener('pointerup',up,{once:true})});
+$('leftHeader').addEventListener('pointerdown',e=>{const handle=e.target.closest('.resize-handle');if(handle)resizeColumn(handle.dataset.col,e)});
+$('leftRows').addEventListener('click',e=>{const c=e.target.closest('[data-collapse]');if(c){e.stopPropagation();const id=+c.dataset.collapse;collapsed.has(id)?collapsed.delete(id):collapsed.add(id);draw();return}const row=e.target.closest('[data-task]');if(row)openEdit(+row.dataset.task)});
+$('plotBody').addEventListener('click',e=>{const b=e.target.closest('.gbar');if(b&&!wasPanning)openEdit(+b.dataset.task)});
+let panX=0,panScroll=0,wasPanning=false,panActive=false;
+$('plotBody').addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('.gbar'))return;panX=e.clientX;panScroll=$('timeline').scrollLeft;panActive=true;wasPanning=false;$('plotBody').classList.add('grabbing');$('plotBody').setPointerCapture(e.pointerId)});
+$('plotBody').addEventListener('pointermove',e=>{if(!panActive)return;const d=e.clientX-panX;if(Math.abs(d)>3)wasPanning=true;$('timeline').scrollLeft=panScroll-d});
+const stopPan=()=>{panActive=false;$('plotBody').classList.remove('grabbing');setTimeout(()=>wasPanning=false,20)};
+$('plotBody').addEventListener('pointerup',stopPan);$('plotBody').addEventListener('pointercancel',stopPan);
+$('zoomOut').addEventListener('click',()=>updateZoom(zoom-4));$('zoomIn').addEventListener('click',()=>updateZoom(zoom+4));
+$('search').addEventListener('input',()=>draw());$('filter').addEventListener('change',()=>draw());$('typeFilter').addEventListener('change',()=>draw());
+$('cutoffDate').value=cutoff;$('cutoffDate').addEventListener('change',e=>{cutoff=e.target.value||cutoff;pref();draw();if($('analysisOverlay').classList.contains('show'))renderAnalysis();});
+$('criticalBtn').addEventListener('click',()=>{highlight=!highlight;$('criticalBtn').textContent=highlight?'◆ Tareas críticas: ON':'◇ Tareas críticas: OFF';$('criticalBtn').classList.toggle('critical-on',highlight);draw()});
+$('depBtn').addEventListener('click',()=>{arrows=!arrows;$('depBtn').classList.toggle('on',arrows);$('depBtn').textContent=arrows?'↗ Dependencias':'↗ Sin dependencias';draw()});
+$('panelBtn').addEventListener('click',()=>{tableHidden=!tableHidden;$('board').classList.toggle('collapsed',tableHidden);$('panelBtn').textContent=tableHidden?'▤ Mostrar tabla':'▤ Ocultar tabla'});
+$('startBtn').addEventListener('click',()=>{$('timeline').scrollLeft=0;$('tablePane').scrollTop=0;$('timeline').scrollTop=0});$('todayBtn').addEventListener('click',today);
+$('fieldsBtn').addEventListener('click',showFields);
+$('fieldChecks').addEventListener('change',e=>{const key=e.target.dataset.field;if(!key)return;if(e.target.checked)hidden.delete(key);else hidden.add(key);if(hidden.size===COLS.length){hidden.delete('name');e.target.checked=true;}pref();draw()});
+$('exportBtn').addEventListener('click',()=>$('exportMenu').classList.toggle('visible'));
+$('exportHtml').addEventListener('click',()=>{exportHtml();$('exportMenu').classList.remove('visible')});
+$('exportJson').addEventListener('click',()=>{download('kolcem-cronograma.json',JSON.stringify(tasks,null,2),'application/json;charset=utf-8');notify('Copia JSON descargada');$('exportMenu').classList.remove('visible')});
+$('importBtn').addEventListener('click',()=>{if(!window.kolcemCloud?.canEdit){notify('Inicia sesión para importar modificaciones');return;}$('importFile').click();$('exportMenu').classList.remove('visible')});
+$('importFile').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const rows=JSON.parse(await f.text());if(!Array.isArray(rows)||!rows.length||rows.some(x=>!x.id||!x.name||!/^\d{4}-\d{2}-\d{2}$/.test(x.start)||!/^\d{4}-\d{2}-\d{2}$/.test(x.end)))throw Error('Formato incompatible');tasks=rows;collapsed.clear();persist();draw();notify('Cronograma importado correctamente')}catch(err){notify('Error al importar: '+err.message)}finally{e.target.value=''}});
+$('resetBtn').addEventListener('click',()=>{if(!window.kolcemCloud?.canEdit){notify('Inicia sesión para restaurar los datos');return;}if(confirm('¿Restaurar las 44 actividades originales del PDF y sus tipos? Se perderá el seguimiento real agregado. ¿Continuar? Se perderán los cambios guardados en este navegador.')){tasks=deepCopy(ORIGINAL);persist();collapsed.clear();draw();notify('Cronograma original restaurado')}$('exportMenu').classList.remove('visible')});
+$('addBtn').addEventListener('click',()=>openEdit(null));
+$('fPreds').addEventListener('input',()=>{if(editingId)updateRelationPreview(editingId)});
+$('relationPreview').addEventListener('click',e=>{const b=e.target.closest('[data-nav-task]');if(b)openEdit(+b.dataset.navTask)});
+$('analysisBtn').addEventListener('click',()=>{activeTab='summary';renderAnalysis();$('analysisOverlay').classList.add('show');});
+$('closeAnalysis').addEventListener('click',()=>$('analysisOverlay').classList.remove('show'));
+$('analysisOverlay').addEventListener('click',e=>{if(e.target===$('analysisOverlay'))$('analysisOverlay').classList.remove('show');const b=e.target.closest('[data-nav-task]');if(b){$('analysisOverlay').classList.remove('show');openEdit(+b.dataset.navTask)}});
+$('analysisOverlay').querySelector('.analysis-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b){activeTab=b.dataset.tab;renderAnalysis()}});
+$('closeModal').addEventListener('click',closeEdit);$('cancelBtn').addEventListener('click',closeEdit);$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeEdit()});
+$('editForm').addEventListener('submit',e=>{
+ e.preventDefault();if(!window.kolcemCloud?.canEdit){notify('Debes iniciar sesión para editar');return;}const start=$('fStart').value,end=$('fEnd').value;
+ if(!start||!end||ts(end)<ts(start)){notify('La fecha de fin debe ser igual o posterior al inicio');return;}
+ const old=tasks.find(t=>t.id===editingId);const id=old?.id??Math.max(0,...tasks.map(t=>t.id))+1;
+ const predecessor=$('fPreds').value.replace(/\s/g,'');const problem=validatePreds(id,predecessor);if(problem){notify(problem);return;}
+ const actualStart=$('fActualStart').value,actualEnd=$('fActualEnd').value;
+ if(actualStart&&actualEnd&&ts(actualEnd)<ts(actualStart)){notify('El fin real no puede ser anterior al inicio real');return;}
+ const rawProgress=$('fProgress').value;const progress=rawProgress===''?null:Math.round(Number(rawProgress));
+ if(progress!=null&&(!Number.isFinite(progress)||progress<0||progress>100)){notify('El avance real debe estar entre 0 y 100');return;}
+ const obj={id,name:$('fName').value.trim(),start,end,duration:$('fType').value==='milestone'?0:daysBetween(start,end)+1,
+  status:$('fStatus').value,type:$('fType').value,predecessors:predecessor,slack:Math.max(0,Number($('fSlack').value)||0),critical:$('fCritical').checked,
+  progress,actualStart,actualEnd,forecastEnd:$('fForecast').value,comment:$('fComment').value.trim()};
+ if(!obj.name){notify('Escribe un nombre para la actividad');return;}
+ if(obj.type==='milestone'&&start!==end){notify('Un hito debe iniciar y terminar el mismo día');return;}
+ const backup=deepCopy(tasks);
+ if(old)Object.assign(old,obj);else tasks.push(obj);
+ if(linksAudit().problems.some(x=>x.detail.includes('ciclo'))){tasks=backup;notify('Se detectó un ciclo entre dependencias. Revisa los vínculos.');return;}
+ persist();draw();closeEdit();notify(old?'Actividad actualizada':'Actividad agregada');
+});
+$('deleteBtn').addEventListener('click',()=>{if(!window.kolcemCloud?.canEdit){notify('Inicia sesión para eliminar');return;}if(editingId&&confirm(`¿Eliminar la actividad #${editingId}?`)){tasks=tasks.filter(t=>t.id!==editingId);persist();draw();closeEdit();notify('Actividad eliminada')}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEdit();$('analysisOverlay').classList.remove('show');$('fieldsMenu').classList.remove('visible');$('exportMenu').classList.remove('visible')}if((e.key==='+'||e.key==='=')&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName))updateZoom(zoom+4);if(e.key==='-'&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName))updateZoom(zoom-4)});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.dropdown-wrap')){$('fieldsMenu').classList.remove('visible');$('exportMenu').classList.remove('visible')}});
+window.addEventListener('resize',()=>{if(sidebar>window.innerWidth-170)setSidebar(window.innerWidth-170)});
+window.kolcemCloudGetRows=()=>deepCopy(tasks);
+window.kolcemCloudApplyRows=(rows)=>{
+ if(!Array.isArray(rows))return;
+ tasks=deepCopy(rows).sort((a,b)=>Number(a.id)-Number(b.id));
+ try{localStorage.setItem(CACHE_KEY,JSON.stringify(tasks))}catch(e){}
+ draw();
+ if($('analysisOverlay').classList.contains('show'))renderAnalysis();
+};
+window.kolcemCloudMessage=notify;
+setSidebar(sidebar);draw({keepScroll:false});$('zoomRead').textContent=Math.round(zoom/21*100)+'%';
+// On first view, show the active part of the schedule; use 'Inicio' to see August.
+requestAnimationFrame(()=>{const now=new Date();const todayS=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;if(ts(cutoff)>=ts(rangeStart)&&ts(cutoff)<=ts(rangeEnd)){jumpToDay(cutoff)}else{$('timeline').scrollLeft=0}});
+})();
+</script>
+<script type="module">
+// Firebase web SDK: directamente desde CDN; no se necesita npm ni hosting de Firebase.
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js';
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js';
+import {getFirestore,collection,doc,writeBatch,onSnapshot,getDocs} from 'https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyD8ILmUhsO8Eloq_CraD97xQsdjkezvhhs',
+  authDomain: 'kolcem-cronograma.firebaseapp.com',
+  projectId: 'kolcem-cronograma',
+  storageBucket: 'kolcem-cronograma.firebasestorage.app',
+  messagingSenderId: '12496411363',
+  appId: '1:12496411363:web:aff950a62f8bd0980c43d6'
+};
+const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app);
+const path=collection(db,'cronogramas','kolcem2026','actividades');
+const $=id=>document.getElementById(id);
+let activeUser=null, unsubscribe=null, ready=false, saving=false, lastCloudDocs=new Map(), queuedSnapshot=null;
+const toast=s=>window.kolcemCloudMessage?.(s);
+function status(message,variant='pending'){
+ $('cloudStatus').textContent=message;
+ $('cloudDot').className='cloud-dot '+(variant==='ok'?'online':variant==='error'?'offline':'');
+}
+function setControls(){
+ const authorized=Boolean(activeUser&&ready);
+ window.kolcemCloud.canEdit=authorized;
+ $('cloudLogin').hidden=!!activeUser;
+ $('cloudLogout').hidden=!activeUser;
+ $('cloudUser').textContent=activeUser?activeUser.email:'Vista pública · solo lectura';
+ $('cloudSeed').hidden=!(authorized&&lastCloudDocs.size===0);
+ $('addBtn').disabled=!authorized;
+}
+const clone=x=>JSON.parse(JSON.stringify(x));
+const norm=x=>JSON.stringify(x);
+const allRows=()=>[...lastCloudDocs.values()].sort((a,b)=>Number(a.id)-Number(b.id));
+function consume(snapshot){
+ if(saving){queuedSnapshot=snapshot;return;}
+ lastCloudDocs=new Map(snapshot.docs.map(d=>[String(d.id),d.data()]));
+ ready=true;setControls();
+ if(lastCloudDocs.size){
+   window.kolcemCloudApplyRows(allRows());
+   status('Datos compartidos actualizados · guardado en la nube','ok');
+ }else{
+   status('Base de datos vacía: pulsa «Subir las 44 filas por primera vez»');
+ }
+}
+async function save(rows){
+ if(!activeUser||!ready){toast('No hay sesión autorizada o conexión lista');return;}
+ if(saving){toast('Hay un guardado en curso; espera unos segundos');return;}
+ const newDocs=new Map(rows.map(t=>[String(t.id),clone(t)]));
+ const changed=[...newDocs].filter(([id,record])=>!lastCloudDocs.has(id)||norm(lastCloudDocs.get(id))!==norm(record));
+ const deleted=[...lastCloudDocs.keys()].filter(id=>!newDocs.has(id));
+ if(!changed.length&&!deleted.length){status('No hubo cambios para sincronizar','ok');return;}
+ saving=true;status('Guardando '+(changed.length+deleted.length)+' cambio(s) en Firebase…');
+ try{
+   const batch=writeBatch(db);
+   for(const [id,record] of changed)batch.set(doc(path,id),record);
+   for(const id of deleted)batch.delete(doc(path,id));
+   await batch.commit();
+   status('Guardado en la nube ✓','ok');
+   toast('Cambios guardados en Firebase y compartidos');
+ }catch(err){
+   status('No se pudo guardar: '+(err.code||err.message),'error');
+   toast('ERROR: cambios NO guardados en Firebase. Exporta JSON antes de cerrar.');
+ }finally{
+   saving=false;
+   if(queuedSnapshot){const pending=queuedSnapshot;queuedSnapshot=null;consume(pending);}
+   else {
+      try {const snapshot=await getDocs(path);consume(snapshot);} catch(e){status('No se pudo actualizar la vista: '+(e.code||e.message),'error')}
+   }
+ }
+}
+window.kolcemCloud={canEdit:false,save};
+$('cloudLogin').addEventListener('click',()=>{$('cloudLoginError').textContent='';$('loginOverlay').classList.add('show');$('cloudEmail').focus();});
+$('closeLogin').addEventListener('click',()=>$('loginOverlay').classList.remove('show'));
+$('cloudLoginForm').addEventListener('submit',async e=>{
+ e.preventDefault();const email=$('cloudEmail').value.trim(),password=$('cloudPassword').value;
+ $('cloudSignIn').disabled=true;$('cloudLoginError').textContent='';
+ try{await signInWithEmailAndPassword(auth,email,password);$('loginOverlay').classList.remove('show');$('cloudPassword').value='';}
+ catch(err){$('cloudLoginError').textContent='No se pudo iniciar sesión ('+(err.code||'verifica correo y contraseña')+').';}
+ finally{$('cloudSignIn').disabled=false;}
+});
+$('cloudLogout').addEventListener('click',()=>signOut(auth));
+$('cloudSeed').addEventListener('click',async()=>{
+ if(!window.kolcemCloud.canEdit||lastCloudDocs.size)return;
+ if(!confirm('¿Subir la copia ACTUAL del cronograma a Firebase? Solo debe hacerse la primera vez. Antes, exporta un JSON de respaldo si tienes cambios importantes.'))return;
+ const rows=window.kolcemCloudGetRows();
+ await save(rows);
+});
+onAuthStateChanged(auth,user=>{
+ if(unsubscribe){unsubscribe();unsubscribe=null;}
+ activeUser=user;ready=false;lastCloudDocs.clear();queuedSnapshot=null;setControls();
+ if(!user){status('Sin iniciar sesión · vista de referencia (solo lectura)');
+   window.kolcemCloudApplyRows(JSON.parse($('dataset').textContent));return;}
+ status('Comprobando permisos y cargando actividades…');
+ unsubscribe=onSnapshot(path,snapshot=>consume(snapshot),err=>{
+   ready=false;setControls();status('Acceso denegado o sin conexión ('+(err.code||err.message)+')','error');
+   toast('Verifica los UID permitidos en las reglas de Firestore.');
+ });
+});
+</script>
+</body>
+</html>
