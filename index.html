@@ -42,24 +42,37 @@
 .cloud-strip{background:#eff6fa;border-bottom:1px solid #d8e5ee;display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:9px 17px;font-size:12px;color:#345266;min-height:49px}
 .cloud-strip strong{font-weight:900;color:#193c50}.cloud-strip .btn{margin-left:1px}.cloud-user{font-size:11px;color:#556f84;margin-left:auto}.cloud-dot{height:10px;width:10px;border-radius:50%;display:inline-block;background:#d69b4f}.cloud-dot.online{background:#39ab75}.cloud-dot.offline{background:#e27868}.cloud-seed{color:#235675;background:#d7e9fc!important;border-color:#accdea!important}
 @media(max-width:790px){.cloud-user{margin-left:0;flex-basis:100%}.cloud-strip{gap:7px;padding:9px 12px}}
+
+/* Compartir y auditoría */
+.cloud-strip .btn {min-height:31px}
+.changelog-dialog{background:#fff;width:min(920px,96vw);max-height:89vh;display:flex;flex-direction:column;border-radius:15px;overflow:hidden;box-shadow:0 30px 100px #172c4663}
+.changelog-head{padding:20px 24px;background:#f7fafc;border-bottom:1px solid #e1e7ed;display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.changelog-head h2{margin:5px 0;font-size:21px}.changelog-body{padding:18px 24px;overflow-y:auto;min-height:160px}
+.history-row{border:1px solid #dfe7ed;border-radius:11px;padding:13px 15px;margin-bottom:10px;background:#fff}
+.history-row .history-line{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.history-time{font-size:11px;color:#677f8e}.history-row .tag{display:inline-block;font-size:10px;padding:3px 8px;background:#e7f5f5;color:#077a80;border-radius:25px;font-weight:800}
+.history-item{font-size:12px;color:#365166;line-height:1.5;margin-top:4px}.history-comment{padding:9px 11px;background:#f2f6f9;border-left:3px solid #64aebe;border-radius:5px;margin-top:8px;color:#33475a;white-space:pre-wrap;font-size:12px}
+.history-row button{border:1px solid #cbdde6;background:#fff;border-radius:6px;padding:5px 8px;cursor:pointer;color:#137582;font-size:11px}
+.newchanges{background:#ffedbb!important;border-color:#e2bb61!important}.welcome-note{background:#eaf5f7;border:1px solid #c2e2ea;padding:10px;border-radius:8px;color:#36596c;font-size:12px;line-height:1.5}
+@media(max-width:790px){.changelog-head{padding:13px}.changelog-body{padding:13px}}
 </style>
 </head>
 <body>
 <div class="app">
  <header class="top"><div class="brand"><div class="brand-logo">K.</div><div><div class="brand-name">KOLCEM <span style="color:#bcd1de;font-weight:400">/</span> CRONOGRAMA</div><div class="brand-sub">PROYECTO FINAL · INGENIERÍA INDUSTRIAL</div></div></div><div class="top-right"><span class="top-tag">Plan de trabajo · 2026</span><span>Basado en el cronograma original de Microsoft Project</span></div></header>
  <section class="intro"><div class="intro-main"><div class="eyebrow">DIAGRAMA DE GANTT · VISTA INTERACTIVA</div><h1>Planificación y ruta crítica</h1><p class="subtitle">Actividades, dependencias, hitos y seguimiento del proyecto.</p></div><div class="stats"><div class="stat"><div class="stat-val" id="statTasks">44</div><div class="stat-label">Registros del plan</div></div><div class="stat completed"><div class="stat-val" id="statDone">12</div><div class="stat-label">Completados</div></div><div class="stat"><div class="stat-val" id="statProgress">10</div><div class="stat-label">En proceso</div></div><div class="stat critical"><div class="stat-val" id="statCritical">9</div><div class="stat-label" title="Identificadas en el PDF; no recalculadas mediante CPM">Tareas críticas (PDF)</div></div></div></section>
- <div class="cloud-strip" aria-live="polite"><span class="cloud-dot" id="cloudDot"></span><strong>Sincronización:</strong><span id="cloudStatus">Preparando conexión con Firebase…</span><span id="cloudUser" class="cloud-user">Vista pública · solo lectura</span><button class="btn" id="cloudLogin" type="button">Iniciar sesión</button><button class="btn" id="cloudLogout" type="button" hidden>Cerrar sesión</button><button class="btn cloud-seed" id="cloudSeed" type="button" hidden>Subir las 44 filas por primera vez</button></div>
- <div class="toolbar"><div class="tools-left"><input id="search" class="control-search" type="search" placeholder="⌕  Buscar actividad o ID…" aria-label="Buscar actividad"><select id="filter" class="control-select" aria-label="Filtrar por estado"><option value="all">Todos los estados</option><option value="Completado">Completado</option><option value="En proceso">En proceso</option><option value="Pendiente">Pendiente</option></select><select id="typeFilter" class="control-select" aria-label="Filtrar por tipo de actividad"><option value="all">Todos los tipos</option><option value="project">Proyecto</option><option value="summary">Etapa</option><option value="task">Actividad</option><option value="milestone">Hito</option></select><button class="btn critical-on" id="criticalBtn" title="Resalta las tareas señaladas en rojo en el PDF original. No recalcula automáticamente la ruta crítica.">◆ Tareas críticas: ON</button><button class="btn on" id="depBtn" title="Mostrar u ocultar las relaciones de precedencia">↗ Dependencias</button><div class="dropdown-wrap"><button class="btn" id="fieldsBtn" aria-expanded="false">☷ Columnas</button><div id="fieldsMenu" class="dropdown"><div class="dropdown-title">MOSTRAR / OCULTAR COLUMNAS</div><div id="fieldChecks"></div></div></div></div><div class="tools-right"><label class="cutoff">Fecha de corte <input id="cutoffDate" type="date" value="2026-10-19" aria-label="Fecha de corte del seguimiento"></label><button class="btn" id="analysisBtn">▤ Análisis y vínculos</button><button class="btn" id="panelBtn" title="Ocultar o mostrar las columnas de actividades">▤ Ocultar tabla</button><button class="btn" id="startBtn">⤺ Inicio</button><button class="btn" id="todayBtn">◎ Hoy</button><span class="vline"></span><button class="btn small" id="zoomOut" title="Reducir escala" aria-label="Alejar">−</button><span id="zoomRead" class="zoom-read">100%</span><button class="btn small" id="zoomIn" title="Ampliar escala" aria-label="Acercar">+</button><span class="vline"></span><div class="dropdown-wrap"><button class="btn primary" id="exportBtn">↓ Exportar ▾</button><div id="exportMenu" class="dropdown"><div class="dropdown-title">GUARDAR Y COMPARTIR</div><button class="btn" style="display:block;width:100%;text-align:left;margin:4px 0" id="exportHtml">↧ HTML actualizado (index.html)</button><button class="btn" style="display:block;width:100%;text-align:left;margin:4px 0" id="exportJson">↧ Copia editable (JSON)</button><button class="btn" style="display:block;width:100%;text-align:left;margin:4px 0" id="importBtn">↥ Importar JSON…</button><button class="btn" style="display:block;width:100%;text-align:left;margin:4px 0;color:#bd4856" id="resetBtn">↶ Restaurar cronograma PDF</button></div></div><button class="btn" id="addBtn" title="Crear una nueva actividad">＋ Tarea</button></div></div>
+ <div class="cloud-strip" aria-live="polite"><span class="cloud-dot" id="cloudDot"></span><strong>Sincronización:</strong><span id="cloudStatus">Preparando conexión con Firebase…</span><span id="cloudUser" class="cloud-user">Vista pública · solo lectura</span><button class="btn" id="cloudNameBtn" type="button">✎ Escribir nombre</button><button class="btn" id="cloudLogin" type="button">Acceso administrador</button><button class="btn" id="cloudLogout" type="button" hidden>Salir de administrador</button><button class="btn cloud-seed" id="cloudSeed" type="button" hidden>Copiar cronograma existente al enlace</button></div>
+ <div class="toolbar"><div class="tools-left"><input id="search" class="control-search" type="search" placeholder="⌕  Buscar actividad o ID…" aria-label="Buscar actividad"><select id="filter" class="control-select" aria-label="Filtrar por estado"><option value="all">Todos los estados</option><option value="Completado">Completado</option><option value="En proceso">En proceso</option><option value="Pendiente">Pendiente</option></select><select id="typeFilter" class="control-select" aria-label="Filtrar por tipo de actividad"><option value="all">Todos los tipos</option><option value="project">Proyecto</option><option value="summary">Etapa</option><option value="task">Actividad</option><option value="milestone">Hito</option></select><button class="btn critical-on" id="criticalBtn" title="Resalta las tareas señaladas en rojo en el PDF original. No recalcula automáticamente la ruta crítica.">◆ Tareas críticas: ON</button><button class="btn on" id="depBtn" title="Mostrar u ocultar las relaciones de precedencia">↗ Dependencias</button><div class="dropdown-wrap"><button class="btn" id="fieldsBtn" aria-expanded="false">☷ Columnas</button><div id="fieldsMenu" class="dropdown"><div class="dropdown-title">MOSTRAR / OCULTAR COLUMNAS</div><div id="fieldChecks"></div></div></div></div><div class="tools-right"><label class="cutoff">Fecha de corte <input id="cutoffDate" type="date" value="2026-10-19" aria-label="Fecha de corte del seguimiento"></label><button class="btn" id="analysisBtn">▤ Análisis y vínculos</button><button class="btn newchanges" id="historyBtn" type="button">◷ Novedades <span id="historyCount">0</span></button><button class="btn" id="panelBtn" title="Ocultar o mostrar las columnas de actividades">▤ Ocultar tabla</button><button class="btn" id="startBtn">⤺ Inicio</button><button class="btn" id="todayBtn">◎ Hoy</button><span class="vline"></span><button class="btn small" id="zoomOut" title="Reducir escala" aria-label="Alejar">−</button><span id="zoomRead" class="zoom-read">100%</span><button class="btn small" id="zoomIn" title="Ampliar escala" aria-label="Acercar">+</button><span class="vline"></span><div class="dropdown-wrap"><button class="btn primary" id="exportBtn">↓ Exportar ▾</button><div id="exportMenu" class="dropdown"><div class="dropdown-title">GUARDAR Y COMPARTIR</div><button class="btn" style="display:block;width:100%;text-align:left;margin:4px 0" id="exportHtml">↧ HTML actualizado (index.html)</button><button class="btn" style="display:block;width:100%;text-align:left;margin:4px 0" id="exportJson">↧ Copia editable (JSON)</button><button class="btn" style="display:block;width:100%;text-align:left;margin:4px 0" id="importBtn">↥ Importar JSON…</button><button class="btn" style="display:block;width:100%;text-align:left;margin:4px 0;color:#bd4856" id="resetBtn">↶ Restaurar cronograma PDF</button></div></div><button class="btn" id="addBtn" title="Crear una nueva actividad">＋ Tarea</button></div></div>
  <section class="board" id="board" aria-label="Diagrama de Gantt interactivo"><div id="tablePane" aria-label="Tabla desplazable de actividades"><div id="leftHeader"></div><div id="leftRows"></div></div><div id="splitter" aria-label="Arrastrar para ajustar el ancho del panel de actividades"></div><div id="timeline" aria-label="Cronograma temporal desplazable"><div id="timelineHead" class="timeline-head"><div id="months" class="month-strip"></div><div id="days" class="day-strip"></div></div><div id="plotBody"></div></div></section>
- <footer class="footer"><div class="legend"><span class="legend-item"><span class="legend-key sum"></span> Etapa / resumen</span><span class="legend-item"><span class="legend-key"></span> Actividad</span><span class="legend-item"><span class="legend-key red"></span> Barra roja en PDF (referencia, no CPM)</span><span class="legend-item"><span class="legend-key mile"></span> Hito</span></div><div class="note">Arrastra encabezados para ampliar columnas · Haz clic en «Análisis y vínculos» para revisar predecesoras, sucesoras y riesgos · <span class="hint">Clic en una actividad para editarla</span> · <span class="mobile-tip">Desliza horizontalmente · </span>Los cambios se guardan en Firebase al confirmar «Guardado en la nube»</div></footer>
+ <footer class="footer"><div class="legend"><span class="legend-item"><span class="legend-key sum"></span> Etapa / resumen</span><span class="legend-item"><span class="legend-key"></span> Actividad</span><span class="legend-item"><span class="legend-key red"></span> Barra roja en PDF (referencia, no CPM)</span><span class="legend-item"><span class="legend-key mile"></span> Hito</span></div><div class="note">Arrastra encabezados para ampliar columnas · Haz clic en «Análisis y vínculos» para revisar predecesoras, sucesoras y riesgos · <span class="hint">Clic en una actividad para editarla</span> · <span class="mobile-tip">Desliza horizontalmente · </span>Todos los cambios y comentarios posteriores a la activación se registran en «Novedades» · El nombre es declarado, no verificado</div></footer>
 </div>
 
 <div id="analysisOverlay" class="modal-backdrop" role="presentation"><div class="analysis-dialog" role="dialog" aria-modal="true" aria-labelledby="analysisTitle"><div class="analysis-head"><div><div class="eyebrow">CONTROL DEL CRONOGRAMA · INFORME DE SEGUIMIENTO</div><h2 id="analysisTitle">Análisis de ruta, hitos y dependencias</h2><p>Revisión interactiva a la fecha de corte seleccionada. La información proviene del cronograma original y los cambios registrados por el equipo.</p></div><button class="btn" id="closeAnalysis">✕ Cerrar</button></div>
 <div class="analysis-tabs"><button id="tabSummary" class="btn on" data-tab="summary">Resumen y riesgos</button><button id="tabLinks" class="btn" data-tab="links">Todas las dependencias</button><button id="tabMilestones" class="btn" data-tab="milestones">Hitos y entregables</button></div>
 <div id="analysisContent" class="analysis-content"></div>
-<div class="analysis-foot"><strong>Aclaración técnica:</strong> la ruta marcada en rojo y las holguras son las del PDF. No se realiza un cálculo CPM nuevo porque el archivo PDF no contiene el calendario completo, las restricciones ni los posibles desfases de MS Project. La edición compartida de los datos se realiza mediante Firebase al iniciar sesión como usuario autorizado. El sitio de GitHub Pages proporciona la interfaz.</div>
+<div class="analysis-foot"><strong>Aclaración técnica:</strong> la ruta marcada en rojo y las holguras son las del PDF. No se realiza un cálculo CPM nuevo porque el archivo PDF no contiene el calendario completo, las restricciones ni los posibles desfases de MS Project. La edición compartida se habilita con el enlace privado de acceso y un nombre indicado por cada visitante. Ese nombre no verifica una identidad real. El sitio de GitHub Pages solo proporciona la interfaz.</div>
 </div></div>
-<div id="modal" class="modal-backdrop" role="presentation"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog-head"><div><div class="eyebrow">EDITOR DE ACTIVIDADES</div><h2 id="modalTitle">Editar tarea</h2><p class="desc">Solo los usuarios autorizados pueden editar. Los cambios se guardan en Firestore.</p></div><button class="btn" id="closeModal" aria-label="Cerrar">✕</button></div><form id="editForm"><div class="form-grid"><div class="form-field wide"><label for="fName">Nombre de la actividad</label><textarea id="fName" required maxlength="600"></textarea></div><div class="form-field"><label for="fStart">Fecha de comienzo</label><input id="fStart" required type="date"></div><div class="form-field"><label for="fEnd">Fecha de fin</label><input id="fEnd" required type="date"></div><div class="form-field"><label for="fStatus">Estado de actividad</label><select id="fStatus"><option>Completado</option><option>En proceso</option><option>Pendiente</option></select></div><div class="form-field"><label for="fType">Tipo de actividad</label><select id="fType"><option value="task">Actividad</option><option value="summary">Etapa</option><option value="milestone">Hito</option><option value="project">Proyecto</option></select></div><div class="form-field"><label for="fPreds">Predecesoras</label><input id="fPreds" type="text" placeholder="Ej.: 25CC;26;27FF"><div class="help">FC = Fin a Comienzo (por defecto) · CC = Comienzo a Comienzo · FF = Fin a Fin · CF = Comienzo a Fin</div></div><div class="form-field"><label for="fSlack">Demora permisible (días)</label><input id="fSlack" type="number" min="0" max="999"></div><div class="form-field"><label for="fProgress">Avance real (%)</label><input id="fProgress" type="number" min="0" max="100" step="1" placeholder="Sin registrar"><div class="help">Dejar vacío si el porcentaje real no ha sido confirmado.</div></div>
+<div id="modal" class="modal-backdrop" role="presentation"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog-head"><div><div class="eyebrow">EDITOR DE ACTIVIDADES</div><h2 id="modalTitle">Editar tarea</h2><p class="desc">Quien tenga el enlace compartido puede editar tras indicar su nombre; cada guardado deja un registro de cambios.</p></div><button class="btn" id="closeModal" aria-label="Cerrar">✕</button></div><form id="editForm"><div class="form-grid"><div class="form-field wide"><label for="fName">Nombre de la actividad</label><textarea id="fName" required maxlength="600"></textarea></div><div class="form-field"><label for="fStart">Fecha de comienzo</label><input id="fStart" required type="date"></div><div class="form-field"><label for="fEnd">Fecha de fin</label><input id="fEnd" required type="date"></div><div class="form-field"><label for="fStatus">Estado de actividad</label><select id="fStatus"><option>Completado</option><option>En proceso</option><option>Pendiente</option></select></div><div class="form-field"><label for="fType">Tipo de actividad</label><select id="fType"><option value="task">Actividad</option><option value="summary">Etapa</option><option value="milestone">Hito</option><option value="project">Proyecto</option></select></div><div class="form-field"><label for="fPreds">Predecesoras</label><input id="fPreds" type="text" placeholder="Ej.: 25CC;26;27FF"><div class="help">FC = Fin a Comienzo (por defecto) · CC = Comienzo a Comienzo · FF = Fin a Fin · CF = Comienzo a Fin</div></div><div class="form-field"><label for="fSlack">Demora permisible (días)</label><input id="fSlack" type="number" min="0" max="999"></div><div class="form-field"><label for="fProgress">Avance real (%)</label><input id="fProgress" type="number" min="0" max="100" step="1" placeholder="Sin registrar"><div class="help">Dejar vacío si el porcentaje real no ha sido confirmado.</div></div>
 <div class="form-field"><label for="fForecast">Fin previsto actualizado</label><input id="fForecast" type="date"><div class="help">Opcional: pronóstico que comunique el equipo.</div></div>
 <div class="form-field"><label for="fActualStart">Inicio real</label><input id="fActualStart" type="date"></div>
 <div class="form-field"><label for="fActualEnd">Fin real</label><input id="fActualEnd" type="date"></div>
@@ -67,7 +80,9 @@
 <div class="form-field wide"><label>Predecesoras y sucesoras interpretadas</label><div id="relationPreview" class="relations"></div></div>
 <div class="form-field wide"><label style="display:flex;align-items:center;gap:9px;cursor:pointer"><input type="checkbox" id="fCritical" style="width:16px;height:16px"> Destacar como actividad crítica (barra roja)</label></div></div><div class="info-box">Las barras rojas y las holguras provienen del PDF y <strong>no constituyen un recálculo automático CPM</strong>. El avance real, las fechas reales y la proyección deben registrarse con evidencia del equipo. Cambiar predecesoras no desplaza automáticamente las tareas sucesoras.</div><div class="dialog-actions"><button class="btn" id="deleteBtn" type="button" style="color:#b8424d">Eliminar actividad</button><div class="actions-right"><button class="btn" id="cancelBtn" type="button">Cancelar</button><button class="btn primary" type="submit">Guardar cambios</button></div></div></form></div></div>
 <input id="importFile" type="file" accept=".json,application/json" hidden>
-<div id="loginOverlay" class="modal-backdrop" role="presentation"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="loginTitle" style="max-width:460px"><div class="dialog-head"><div><div class="eyebrow">FIREBASE AUTHENTICATION</div><h2 id="loginTitle">Acceso al cronograma compartido</h2><p class="desc">Solo cuentas autorizadas por el equipo pueden ver y guardar datos compartidos.</p></div><button class="btn" id="closeLogin" type="button">✕</button></div><form id="cloudLoginForm"><div class="form-grid"><div class="form-field wide"><label for="cloudEmail">Correo electrónico</label><input id="cloudEmail" type="email" autocomplete="username" required></div><div class="form-field wide"><label for="cloudPassword">Contraseña</label><input id="cloudPassword" type="password" autocomplete="current-password" required></div></div><p class="info-box">La cuenta se crea desde Firebase Console → Authentication → Usuarios. No compartas tu contraseña con nadie.</p><p id="cloudLoginError" style="color:#b8424d;font-size:12px" role="alert"></p><div class="dialog-actions"><span class="help">Se requiere conexión a internet.</span><button class="btn primary" id="cloudSignIn" type="submit">Entrar</button></div></form></div></div>
+<div id="loginOverlay" class="modal-backdrop" role="presentation"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="loginTitle" style="max-width:460px"><div class="dialog-head"><div><div class="eyebrow">FIREBASE AUTHENTICATION</div><h2 id="loginTitle">Acceso al cronograma compartido</h2><p class="desc">Esta entrada es exclusiva para la persona administradora que transferirá una vez el cronograma existente. Los visitantes no necesitan contraseña.</p></div><button class="btn" id="closeLogin" type="button">✕</button></div><form id="cloudLoginForm"><div class="form-grid"><div class="form-field wide"><label for="cloudEmail">Correo electrónico</label><input id="cloudEmail" type="email" autocomplete="username" required></div><div class="form-field wide"><label for="cloudPassword">Contraseña</label><input id="cloudPassword" type="password" autocomplete="current-password" required></div></div><p class="info-box">Los visitantes abren el enlace compartido y escriben su nombre; NO ingresan aquí. Esta cuenta se utiliza solo para publicar la primera copia del cronograma.</p><p id="cloudLoginError" style="color:#b8424d;font-size:12px" role="alert"></p><div class="dialog-actions"><span class="help">Se requiere conexión a internet.</span><button class="btn primary" id="cloudSignIn" type="submit">Entrar</button></div></form></div></div>
+<div id="nameOverlay" class="modal-backdrop" role="presentation"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="nameTitle" style="max-width:490px"><div class="dialog-head"><div><div class="eyebrow">COLABORACIÓN KOLCEM</div><h2 id="nameTitle">¿Cómo te llamas?</h2><p class="desc">Escribe el nombre que quedará junto a tus ediciones y comentarios. No necesitas crear una cuenta.</p></div></div><form id="nameForm"><div class="form-grid"><div class="form-field wide"><label for="visitorName">Tu nombre (obligatorio para editar)</label><input id="visitorName" required maxlength="70" autocomplete="name" placeholder="Ej.: Profesor René Amaya"></div></div><p class="info-box">El nombre es declarado por cada persona y no constituye una verificación de identidad. Solo comparte el enlace con personas de confianza.</p><div class="dialog-actions"><span class="help">Puedes cambiar el nombre después.</span><button class="btn primary" type="submit">Continuar al cronograma</button></div></form></div></div>
+<div id="historyOverlay" class="modal-backdrop" role="presentation"><div class="changelog-dialog" role="dialog" aria-modal="true" aria-labelledby="historyTitle"><div class="changelog-head"><div><div class="eyebrow">BITÁCORA DEL PROYECTO FINAL</div><h2 id="historyTitle">Novedades y cambios registrados</h2><p class="desc">Quién declaró haber editado, qué actividad cambió, qué campos y cuándo. Solo se registran los cambios realizados desde esta versión.</p></div><button class="btn" id="closeHistory" type="button">✕ Cerrar</button></div><div class="changelog-body" id="historyContent"><p>Cargando historial…</p></div></div></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script id="dataset" type="application/json">[
   {
@@ -929,7 +944,7 @@ function updateZoom(n){const right=$('timeline'),center=right.scrollLeft+right.c
 function jumpToDay(s){const right=$('timeline');right.scrollLeft=Math.max(0,xDate(s)-right.clientWidth*.42);}
 function today(){jumpToDay(cutoff);}
 function openEdit(id){
- if(!window.kolcemCloud?.canEdit){notify('Solo lectura: inicia sesión con una cuenta autorizada para editar.');document.getElementById('loginOverlay').classList.add('show');return;}
+ if(!window.kolcemCloud?.canEdit){notify('Para editar abre el enlace compartido, espera los datos y escribe tu nombre.');if(window.kolcemCloud?.ready&&!window.kolcemCloud?.getName?.())document.getElementById('nameOverlay').classList.add('show');return;}
  let t=tasks.find(x=>x.id===id);editingId=t?t.id:null;
  t=t||{id:Math.max(0,...tasks.map(x=>x.id))+1,name:'Nueva actividad',start:cutoff,end:cutoff,type:'task',status:'Pendiente',predecessors:'',slack:0,critical:false,progress:null,actualStart:'',actualEnd:'',forecastEnd:'',comment:''};
  $('modalTitle').textContent=(editingId?'Editar #'+t.id:'Nueva actividad #'+t.id)+' · '+(TYPE_LABEL[t.type]||'Actividad');
@@ -1078,7 +1093,7 @@ $('analysisOverlay').addEventListener('click',e=>{if(e.target===$('analysisOverl
 $('analysisOverlay').querySelector('.analysis-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b){activeTab=b.dataset.tab;renderAnalysis()}});
 $('closeModal').addEventListener('click',closeEdit);$('cancelBtn').addEventListener('click',closeEdit);$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeEdit()});
 $('editForm').addEventListener('submit',e=>{
- e.preventDefault();if(!window.kolcemCloud?.canEdit){notify('Debes iniciar sesión para editar');return;}const start=$('fStart').value,end=$('fEnd').value;
+ e.preventDefault();if(!window.kolcemCloud?.canEdit){notify('Necesitas el enlace compartido y tu nombre para editar');return;}const start=$('fStart').value,end=$('fEnd').value;
  if(!start||!end||ts(end)<ts(start)){notify('La fecha de fin debe ser igual o posterior al inicio');return;}
  const old=tasks.find(t=>t.id===editingId);const id=old?.id??Math.max(0,...tasks.map(t=>t.id))+1;
  const predecessor=$('fPreds').value.replace(/\s/g,'');const problem=validatePreds(id,predecessor);if(problem){notify(problem);return;}
@@ -1096,7 +1111,7 @@ $('editForm').addEventListener('submit',e=>{
  if(linksAudit().problems.some(x=>x.detail.includes('ciclo'))){tasks=backup;notify('Se detectó un ciclo entre dependencias. Revisa los vínculos.');return;}
  persist();draw();closeEdit();notify(old?'Actividad actualizada':'Actividad agregada');
 });
-$('deleteBtn').addEventListener('click',()=>{if(!window.kolcemCloud?.canEdit){notify('Inicia sesión para eliminar');return;}if(editingId&&confirm(`¿Eliminar la actividad #${editingId}?`)){tasks=tasks.filter(t=>t.id!==editingId);persist();draw();closeEdit();notify('Actividad eliminada')}});
+$('deleteBtn').addEventListener('click',()=>{if(!window.kolcemCloud?.canEdit){notify('Necesitas el enlace compartido y tu nombre para eliminar');return;}if(editingId&&confirm(`¿Eliminar la actividad #${editingId}?`)){tasks=tasks.filter(t=>t.id!==editingId);persist();draw();closeEdit();notify('Actividad eliminada')}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEdit();$('analysisOverlay').classList.remove('show');$('fieldsMenu').classList.remove('visible');$('exportMenu').classList.remove('visible')}if((e.key==='+'||e.key==='=')&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName))updateZoom(zoom+4);if(e.key==='-'&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName))updateZoom(zoom-4)});
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('.dropdown-wrap')){$('fieldsMenu').classList.remove('visible');$('exportMenu').classList.remove('visible')}});
 window.addEventListener('resize',()=>{if(sidebar>window.innerWidth-170)setSidebar(window.innerWidth-170)});
@@ -1115,105 +1130,117 @@ requestAnimationFrame(()=>{const now=new Date();const todayS=`${now.getFullYear(
 })();
 </script>
 <script type="module">
-// Firebase web SDK: directamente desde CDN; no se necesita npm ni hosting de Firebase.
+// Modo compartido por enlace de acceso privado: autenticación anónima transparente.
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js';
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js';
-import {getFirestore,collection,doc,writeBatch,onSnapshot,getDocs} from 'https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js';
-
-const firebaseConfig = {
-  apiKey: 'AIzaSyD8ILmUhsO8E1oq_CraD97xQsdjkezvhhs',
-  authDomain: 'kolcem-cronograma.firebaseapp.com',
-  projectId: 'kolcem-cronograma',
-  storageBucket: 'kolcem-cronograma.firebasestorage.app',
-  messagingSenderId: '12496411363',
-  appId: '1:12496411363:web:aff950a62f8bd0980c43d6'
+import {getAuth,onAuthStateChanged,signInAnonymously,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js';
+import {getFirestore,collection,doc,writeBatch,onSnapshot,getDocs,query,orderBy,limit,serverTimestamp} from 'https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js';
+const firebaseConfig={
+ apiKey:'AIzaSyD8ILmUhsO8E1oq_CraD97xQsdjkezvhhs',
+ authDomain:'kolcem-cronograma.firebaseapp.com',
+ projectId:'kolcem-cronograma',
+ storageBucket:'kolcem-cronograma.firebasestorage.app',
+ messagingSenderId:'12496411363',
+ appId:'1:12496411363:web:aff950a62f8bd0980c43d6'
 };
-const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app);
-const path=collection(db,'cronogramas','kolcem2026','actividades');
-const $=id=>document.getElementById(id);
-let activeUser=null, unsubscribe=null, ready=false, saving=false, lastCloudDocs=new Map(), queuedSnapshot=null;
+const OWNER_UID='zZuczt7Wc6RHXDIC6i2XKw8DhfO2';
+const token=new URLSearchParams(location.hash.slice(1)).get('acceso');
+const validToken=/^[A-Za-z0-9_-]{35,65}$/.test(token||'');
+const NAME_KEY='kolcem-visitante-nombre-v3';
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),$=id=>document.getElementById(id);
+const oldPath=collection(db,'cronogramas','kolcem2026','actividades');
+const sharePath=validToken?collection(db,'publicaciones',token,'actividades'):null;
+const auditPath=validToken?collection(db,'publicaciones',token,'historial'):null;
+let activeUser=null,unsubscribe=null,unsubAudit=null,ready=false,saving=false,lastCloudDocs=new Map(),queuedSnapshot=null;
+let history=[],authorName=(localStorage.getItem(NAME_KEY)||'').trim(),lastViewed=Number(localStorage.getItem('kolcem-last-history:'+token)||0);
 const toast=s=>window.kolcemCloudMessage?.(s);
-function status(message,variant='pending'){
- $('cloudStatus').textContent=message;
- $('cloudDot').className='cloud-dot '+(variant==='ok'?'online':variant==='error'?'offline':'');
-}
-function setControls(){
- const authorized=Boolean(activeUser&&ready);
- window.kolcemCloud.canEdit=authorized;
- $('cloudLogin').hidden=!!activeUser;
- $('cloudLogout').hidden=!activeUser;
- $('cloudUser').textContent=activeUser?activeUser.email:'Vista pública · solo lectura';
- $('cloudSeed').hidden=!(authorized&&lastCloudDocs.size===0);
- $('addBtn').disabled=!authorized;
-}
 const clone=x=>JSON.parse(JSON.stringify(x));
 const norm=x=>JSON.stringify(x);
 const allRows=()=>[...lastCloudDocs.values()].sort((a,b)=>Number(a.id)-Number(b.id));
+const owner=()=>Boolean(activeUser&&activeUser.uid===OWNER_UID);
+const FIELDS={name:'Nombre',start:'Fecha inicial',end:'Fecha final',duration:'Duración',status:'Estado',type:'Tipo',predecessors:'Predecesoras',slack:'Holgura',critical:'Marca crítica',progress:'Avance real',actualStart:'Inicio real',actualEnd:'Fin real',forecastEnd:'Pronóstico',comment:'Comentario'};
+function status(message,variant='pending'){$('cloudStatus').textContent=message;$('cloudDot').className='cloud-dot '+(variant==='ok'?'online':variant==='error'?'offline':'')}
+function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function setControls(){
+ window.kolcemCloud.canEdit=Boolean(validToken&&activeUser&&ready&&lastCloudDocs.size&&authorName);
+ window.kolcemCloud.ready=Boolean(validToken&&activeUser&&ready);
+ $('cloudLogin').hidden=!validToken||owner();
+ $('cloudLogout').hidden=!owner();
+ $('cloudSeed').hidden=!(validToken&&owner()&&ready&&lastCloudDocs.size===0);
+ $('cloudNameBtn').hidden=!validToken;
+ $('cloudNameBtn').textContent=authorName?'✎ '+authorName:'✎ Escribir nombre';
+ $('cloudUser').textContent=!validToken?'Se requiere el enlace de edición':owner()?'Administrador · '+(authorName||'falta tu nombre'):authorName?'Edición compartida · '+authorName:'Escribe tu nombre para editar';
+ $('addBtn').disabled=!window.kolcemCloud.canEdit;
+}
 function consume(snapshot){
  if(saving){queuedSnapshot=snapshot;return;}
  lastCloudDocs=new Map(snapshot.docs.map(d=>[String(d.id),d.data()]));
  ready=true;setControls();
- if(lastCloudDocs.size){
-   window.kolcemCloudApplyRows(allRows());
-   status('Datos compartidos actualizados · guardado en la nube','ok');
- }else{
-   status('Base de datos vacía: pulsa «Subir las 44 filas por primera vez»');
- }
+ if(lastCloudDocs.size){window.kolcemCloudApplyRows(allRows());status('Datos compartidos actualizados · guardado en la nube','ok');}
+ else status(owner()?'Sin copia compartida: pulsa «Copiar cronograma existente al enlace»':'Esperando que la administradora active el enlace');
+}
+function textValue(v){if(v==null||v==='')return '—';let t=String(v);return t.length>100?t.slice(0,97)+'…':t;}
+function diff(before,after){const names=[...new Set([...Object.keys(before||{}),...Object.keys(after||{})])];return names.filter(k=>k!=='id'&&norm(before?.[k]??null)!==norm(after?.[k]??null)).map(k=>({campo:FIELDS[k]||k,antes:textValue(before?.[k]),despues:textValue(after?.[k])}));}
+function auditRecord(id,before,after){
+ return {taskId:Number(id),taskName:(after||before)?.name||'Actividad eliminada',author:authorName,authorUid:activeUser.uid,
+  kind:!before?'creada':!after?'eliminada':'modificada',changes:diff(before,after),comment:(after?.comment||'').slice(0,3000),when:serverTimestamp()};
 }
 async function save(rows){
- if(!activeUser||!ready){toast('No hay sesión autorizada o conexión lista');return;}
+ if(!window.kolcemCloud.canEdit){toast('Primero indica tu nombre y espera la sincronización');return;}
  if(saving){toast('Hay un guardado en curso; espera unos segundos');return;}
  const newDocs=new Map(rows.map(t=>[String(t.id),clone(t)]));
- const changed=[...newDocs].filter(([id,record])=>!lastCloudDocs.has(id)||norm(lastCloudDocs.get(id))!==norm(record));
+ const changed=[...newDocs].filter(([id,r])=>!lastCloudDocs.has(id)||norm(lastCloudDocs.get(id))!==norm(r));
  const deleted=[...lastCloudDocs.keys()].filter(id=>!newDocs.has(id));
  if(!changed.length&&!deleted.length){status('No hubo cambios para sincronizar','ok');return;}
- saving=true;status('Guardando '+(changed.length+deleted.length)+' cambio(s) en Firebase…');
+ if(changed.length+deleted.length>100){toast('Demasiadas modificaciones simultáneas: revisa tu copia JSON');return;}
+ saving=true;status('Guardando cambios e historial en Firebase…');
  try{
-   const batch=writeBatch(db);
-   for(const [id,record] of changed)batch.set(doc(path,id),record);
-   for(const id of deleted)batch.delete(doc(path,id));
-   await batch.commit();
-   status('Guardado en la nube ✓','ok');
-   toast('Cambios guardados en Firebase y compartidos');
- }catch(err){
-   status('No se pudo guardar: '+(err.code||err.message),'error');
-   toast('ERROR: cambios NO guardados en Firebase. Exporta JSON antes de cerrar.');
- }finally{
-   saving=false;
-   if(queuedSnapshot){const pending=queuedSnapshot;queuedSnapshot=null;consume(pending);}
-   else {
-      try {const snapshot=await getDocs(path);consume(snapshot);} catch(e){status('No se pudo actualizar la vista: '+(e.code||e.message),'error')}
-   }
- }
+  const batch=writeBatch(db);
+  for(const [id,record] of changed){batch.set(doc(sharePath,id),record);batch.set(doc(auditPath,crypto.randomUUID()),auditRecord(id,lastCloudDocs.get(id),record));}
+  for(const id of deleted){batch.delete(doc(sharePath,id));batch.set(doc(auditPath,crypto.randomUUID()),auditRecord(id,lastCloudDocs.get(id),null));}
+  await batch.commit();status('Guardado e historial actualizados ✓','ok');toast('Cambios y autor registrados en la nube');
+ }catch(err){status('No se pudo guardar: '+(err.code||err.message),'error');toast('ERROR: los cambios NO se guardaron en Firebase. Descarga un JSON antes de salir.');}
+ finally{saving=false;if(queuedSnapshot){const s=queuedSnapshot;queuedSnapshot=null;consume(s);}else{try{consume(await getDocs(sharePath))}catch(e){status('No se pudo actualizar la vista','error')}}}
 }
-window.kolcemCloud={canEdit:false,save};
+function moment(t){if(!t)return 'Actualizando hora…';const d=t.toDate?t.toDate():new Date(t);return isNaN(d)?'Fecha no disponible':d.toLocaleString('es-CO',{dateStyle:'medium',timeStyle:'short'});}
+function showHistory(){
+ $('historyCount').textContent=String(history.filter(e=>e.when?.toMillis?.() > lastViewed).length);
+ $('historyContent').innerHTML=history.length?history.map((e)=>{
+   const ch=(e.changes||[]).map(c=>'<div class="history-item"><b>'+safe(c.campo)+'</b>: '+safe(c.antes)+' → '+safe(c.despues)+'</div>').join('');
+   return '<article class="history-row"><div class="history-line"><span class="tag">Actividad #'+safe(e.taskId)+'</span><strong>'+safe(e.author||'Sin nombre')+'</strong><span class="history-time">'+safe(moment(e.when))+'</span><span class="history-time">('+safe(e.kind||'modificada')+')</span></div><b>'+safe(e.taskName)+'</b>'+ch+((e.comment&&((e.changes||[]).some(c=>c.campo==='Comentario')))?'<div class="history-comment">Comentario: '+safe(e.comment)+'</div>':'')+'<div style="margin-top:8px"><button type="button" data-activity="'+Number(e.taskId)+'">Ver actividad ↗</button></div></article>';
+ }).join(''):'<p class="welcome-note">Todavía no hay cambios en esta bitácora. Aparecerán aquí las modificaciones y los comentarios guardados desde esta nueva versión.</p>';
+}
+function beginAudit(){if(unsubAudit){unsubAudit();unsubAudit=null;}history=[];showHistory();if(!auditPath)return;
+ unsubAudit=onSnapshot(query(auditPath,orderBy('when','desc'),limit(150)),snap=>{history=snap.docs.map(d=>({...d.data(),id:d.id}));showHistory();},err=>{if($('historyContent'))$('historyContent').textContent='No se pudo cargar la bitácora: '+(err.code||err.message);});}
+window.kolcemCloud={canEdit:false,ready:false,getName:()=>authorName,save};
+$('historyBtn').addEventListener('click',()=>{$('historyOverlay').classList.add('show');lastViewed=Date.now();localStorage.setItem('kolcem-last-history:'+token,String(lastViewed));showHistory();});
+$('closeHistory').addEventListener('click',()=>$('historyOverlay').classList.remove('show'));
+$('historyOverlay').addEventListener('click',e=>{if(e.target===$('historyOverlay'))$('historyOverlay').classList.remove('show');const b=e.target.closest('[data-activity]');if(b){$('historyOverlay').classList.remove('show');window.kolcemOpenForHistory?.(+b.dataset.activity);}});
+window.kolcemOpenForHistory=id=>{const row=document.querySelector('[data-task="'+id+'"]');if(row)row.click();else {document.getElementById('search').value=String(id);document.getElementById('search').dispatchEvent(new Event('input'));setTimeout(()=>document.querySelector('[data-task="'+id+'"]')?.click(),60);}};
+$('cloudNameBtn').addEventListener('click',()=>{$('visitorName').value=authorName;$('nameOverlay').classList.add('show');$('visitorName').focus();});
+$('nameForm').addEventListener('submit',e=>{e.preventDefault();const n=$('visitorName').value.trim().replace(/\s+/g,' ');if(n.length<2)return;authorName=n.slice(0,70);localStorage.setItem(NAME_KEY,authorName);$('nameOverlay').classList.remove('show');setControls();toast('Tus modificaciones aparecerán como «'+authorName+'»');});
 $('cloudLogin').addEventListener('click',()=>{$('cloudLoginError').textContent='';$('loginOverlay').classList.add('show');$('cloudEmail').focus();});
 $('closeLogin').addEventListener('click',()=>$('loginOverlay').classList.remove('show'));
-$('cloudLoginForm').addEventListener('submit',async e=>{
- e.preventDefault();const email=$('cloudEmail').value.trim(),password=$('cloudPassword').value;
- $('cloudSignIn').disabled=true;$('cloudLoginError').textContent='';
- try{await signInWithEmailAndPassword(auth,email,password);$('loginOverlay').classList.remove('show');$('cloudPassword').value='';}
- catch(err){$('cloudLoginError').textContent='No se pudo iniciar sesión ('+(err.code||'verifica correo y contraseña')+').';}
- finally{$('cloudSignIn').disabled=false;}
-});
-$('cloudLogout').addEventListener('click',()=>signOut(auth));
+$('cloudLoginForm').addEventListener('submit',async e=>{e.preventDefault();$('cloudSignIn').disabled=true;$('cloudLoginError').textContent='';try{await signInWithEmailAndPassword(auth,$('cloudEmail').value.trim(),$('cloudPassword').value);$('loginOverlay').classList.remove('show');$('cloudPassword').value='';}catch(err){$('cloudLoginError').textContent='Error ('+(err.code||err.message)+')';}finally{$('cloudSignIn').disabled=false;}});
+$('cloudLogout').addEventListener('click',async()=>{await signOut(auth);await signInAnonymously(auth);});
 $('cloudSeed').addEventListener('click',async()=>{
- if(!window.kolcemCloud.canEdit||lastCloudDocs.size)return;
- if(!confirm('¿Subir la copia ACTUAL del cronograma a Firebase? Solo debe hacerse la primera vez. Antes, exporta un JSON de respaldo si tienes cambios importantes.'))return;
- const rows=window.kolcemCloudGetRows();
- await save(rows);
+ if(!owner()||!validToken||!ready||lastCloudDocs.size){toast('La copia compartida ya está creada o no tienes permiso');return;}
+ if(!confirm('Se copiará el cronograma ACTUAL de tu Firebase al enlace privado. Las actividades y comentarios existentes no se borrarán. Continuar?'))return;
+ $('cloudSeed').disabled=true;status('Copiando 44 actividades existentes al enlace…');
+ try{const snap=await getDocs(oldPath);if(snap.empty)throw new Error('La base original está vacía: no se copiaron datos');const batch=writeBatch(db);let c=0; snap.forEach(d=>{batch.set(doc(sharePath,d.id),d.data());c++;});await batch.commit();toast('¡Copia compartida creada con '+c+' actividades!');status('Copia compartida activada, esperando datos…');}
+ catch(err){status('Error al transferir: '+(err.code||err.message),'error');toast('No se copiaron los datos: '+(err.message||err.code));}
+ finally{$('cloudSeed').disabled=false;}
 });
 onAuthStateChanged(auth,user=>{
- if(unsubscribe){unsubscribe();unsubscribe=null;}
+ if(unsubscribe){unsubscribe();unsubscribe=null;}if(unsubAudit){unsubAudit();unsubAudit=null;}
  activeUser=user;ready=false;lastCloudDocs.clear();queuedSnapshot=null;setControls();
- if(!user){status('Sin iniciar sesión · vista de referencia (solo lectura)');
-   window.kolcemCloudApplyRows(JSON.parse($('dataset').textContent));return;}
- status('Comprobando permisos y cargando actividades…');
- unsubscribe=onSnapshot(path,snapshot=>consume(snapshot),err=>{
-   ready=false;setControls();status('Acceso denegado o sin conexión ('+(err.code||err.message)+')','error');
-   toast('Verifica los UID permitidos en las reglas de Firestore.');
- });
+ if(!validToken){status('Abre el enlace privado completo (incluye #acceso=…)','error');return;}
+ if(!user){status('Habilitando acceso al enlace…');signInAnonymously(auth).catch(err=>status('Activa Authentication → Anónimo ('+(err.code||err.message)+')','error'));return;}
+ status('Sincronizando cronograma compartido…');
+ unsubscribe=onSnapshot(sharePath,consume,err=>{ready=false;setControls();status('Sin permisos: revisa las reglas del enlace ('+(err.code||err.message)+')','error');});
+ beginAudit();
+ if(!authorName){$('nameOverlay').classList.add('show');$('visitorName').focus();}
 });
+if(!validToken){status('Para editar usa el enlace privado con #acceso=…','error');$('cloudNameBtn').hidden=true;$('cloudLogin').hidden=true;}
 </script>
 </body>
 </html>
